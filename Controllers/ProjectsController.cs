@@ -223,10 +223,11 @@ namespace CSBugTracker.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Projects
-                .Include(p => p.Company)
-                .Include(p => p.ProjectPriority)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Project? project = await _context.Projects
+                                        .Include(p => p.Company)
+                                        .Include(p => p.ProjectPriority)
+                                        .Include(p => p.Tickets)
+                                        .FirstOrDefaultAsync(m => m.Id == id);
             if (project == null)
             {
                 return NotFound();
@@ -244,14 +245,37 @@ namespace CSBugTracker.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Projects'  is null.");
             }
-            var project = await _context.Projects.FindAsync(id);
-            if (project != null)
+
+            var project = await _context.Projects.Include(p => p.Tickets).FirstOrDefaultAsync(p=>p.Id == id);
+
+            try
             {
-                _context.Projects.Remove(project);
+                project!.Archived = true;
+
+                foreach(Ticket ticket in project.Tickets)
+                {
+                    ticket.Archived = true;
+                    ticket.ArchivedByProject = true;
+                }
+
+                _context.Update(project);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            //if (project != null)
+            //{
+            //    _context.Projects.Remove(project);
+            //}
+
+            //await _context.SaveChangesAsync();
+            //return RedirectToAction(nameof(Index));
         }
 
         private bool ProjectExists(int id)

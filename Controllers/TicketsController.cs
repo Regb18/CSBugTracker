@@ -221,14 +221,34 @@ namespace CSBugTracker.Controllers
             {
                 return Problem("Entity set 'ApplicationDbContext.Tickets'  is null.");
             }
+
             var ticket = await _context.Tickets.FindAsync(id);
-            if (ticket != null)
+
+
+            try
             {
-                _context.Tickets.Remove(ticket);
+                ticket!.Archived = true;
+
+                _context.Update(ticket);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
             }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+
+
+            //if (ticket != null)
+            //{
+            //    _context.Tickets.Remove(ticket);
+            //}
+
+            //await _context.SaveChangesAsync();
+            //return RedirectToAction(nameof(Index));
         }
 
         private bool TicketExists(int id)
