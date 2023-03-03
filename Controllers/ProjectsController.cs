@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using CSBugTracker.Data;
 using CSBugTracker.Models;
 using CSBugTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using System.Net.Sockets;
 
 namespace CSBugTracker.Controllers
 {
@@ -15,18 +17,32 @@ namespace CSBugTracker.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IBTFileService _fileService;
+        private readonly UserManager<BTUser> _userManager;
 
-        public ProjectsController(ApplicationDbContext context, IBTFileService fileService)
+        public ProjectsController(ApplicationDbContext context, IBTFileService fileService, UserManager<BTUser> userManager)
         {
             _context = context;
             _fileService = fileService;
+            _userManager = userManager;
         }
 
         // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Projects.Include(p => p.Company).Include(p => p.ProjectPriority);
-            return View(await applicationDbContext.ToListAsync());
+            string userId = _userManager.GetUserId(User)!;
+            BTUser? btuser = await _context.Users.Include(u=>u.Projects).FirstOrDefaultAsync(u => u.Id == userId);
+
+
+            List<Project> projects = await _context.Projects
+                                                      .Where(p => p.CompanyId == btuser!.CompanyId)
+                                                      .Include(p => p.Company)
+                                                      .Include(p => p.ProjectPriority)
+                                                      .ToListAsync();
+            // if admin - projects based on company
+            // if other user - projects based on user/only ones they're in? or can only interact with ones they're part of
+
+
+            return View(projects);
         }
 
         // GET: Projects/Details/5
@@ -40,19 +56,35 @@ namespace CSBugTracker.Controllers
             var project = await _context.Projects
                 .Include(p => p.Company)
                 .Include(p => p.ProjectPriority)
+                .Include(p => p.Tickets).ThenInclude(t => t.DeveloperUser)
+                .Include(p => p.Tickets).ThenInclude(t => t.SubmitterUser)
+                .Include(p => p.Tickets).ThenInclude(t => t.TicketPriority)
+                .Include(p => p.Tickets).ThenInclude(t => t.TicketStatus)
+                .Include(p => p.Tickets).ThenInclude(t => t.TicketType)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (project == null)
             {
                 return NotFound();
             }
 
+            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "FullName");
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
+            ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "FullName");
+            ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name");
+            ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name");
+            ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name");
             return View(project);
         }
 
         // GET: Projects/Create
-        public IActionResult Create()
+        public async  Task<IActionResult> Create()
         {
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
+            string? userId = _userManager.GetUserId(User);
+            BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u=>u.Id == userId);
+
+
+            //ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name");
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name");
             return View(new Project());
         }
@@ -64,26 +96,27 @@ namespace CSBugTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description,Created,StartDate,EndDate,ImageFile,ImageData,ImageType,Archived,CompanyId,ProjectPriorityId")] Project project)
         {
-            // make project from company view, remove companyId
-
-
+            // add company from user
+            string? userId = _userManager.GetUserId(User);
+            BTUser? btUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (ModelState.IsValid)
             {
 
 
                 // Add companyId automatically to Project
+                project.CompanyId = btUser!.CompanyId;
 
                 project.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
                 if (project.StartDate != null)
                 {
-                    project.StartDate = DateTime.SpecifyKind(project.StartDate.Value, DateTimeKind.Utc);
+                    project.StartDate = DataUtility.GetPostGresDate(DateTime.UtcNow);
                 }
 
                 if (project.EndDate != null)
                 {
-                    project.EndDate = DateTime.SpecifyKind(project.EndDate.Value, DateTimeKind.Utc);
+                    project.EndDate = DataUtility.GetPostGresDate(DateTime.UtcNow);
                 }
 
 
@@ -111,12 +144,15 @@ namespace CSBugTracker.Controllers
                 return NotFound();
             }
 
-            var project = await _context.Projects.FindAsync(id);
+
+            var project = await _context.Projects.Include(p=>p.Members).FirstOrDefaultAsync(p => p.Id == id);
+
+
             if (project == null)
             {
                 return NotFound();
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
+            //ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
             return View(project);
         }
@@ -137,6 +173,27 @@ namespace CSBugTracker.Controllers
             {
                 try
                 {
+
+                    project.Created = DataUtility.GetPostGresDate(project.Created);
+
+                    if (project.StartDate != null)
+                    {
+                        project.StartDate = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                    }
+
+                    if (project.EndDate != null)
+                    {
+                        project.EndDate = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                    }
+
+
+                    if (project.ImageFile != null)
+                    {
+                        project.ImageData = await _fileService.ConvertFileToByteArrayAsync(project.ImageFile);
+                        project.ImageType = project.ImageFile.ContentType;
+                    }
+
+
                     _context.Update(project);
                     await _context.SaveChangesAsync();
                 }
@@ -153,7 +210,7 @@ namespace CSBugTracker.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
+            //ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
             ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
             return View(project);
         }

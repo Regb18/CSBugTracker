@@ -36,6 +36,9 @@ namespace CSBugTracker.Controllers
             }
 
             var company = await _context.Companies
+                .Include(c=>c.Projects)
+                .Include(c => c.Members)
+                .Include(c => c.Invites)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (company == null)
             {

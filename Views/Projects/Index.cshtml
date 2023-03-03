@@ -77,7 +77,7 @@
                     @Html.DisplayFor(modelItem => item.ProjectPriority.Name)
                 </td>
                 <td class="square-img-container">
-                    <a asp-action="Details" asp-route-id="@item.Id" asp-route-returnView="Contacts">
+                    <a asp-action="Details" asp-route-id="@item.Id">
                         <img height="100" width="100" src="@_FileService.ConvertByteArrayToFile(item.ImageData!,item.ImageType!,(int)DefaultImage.ProjectImage)" class="square-img rounded-start">
                     </a>
                 </td>

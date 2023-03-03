@@ -18,6 +18,11 @@ namespace CSBugTracker.Controllers
             return View();
         }
 
+        public IActionResult PortoIndex()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

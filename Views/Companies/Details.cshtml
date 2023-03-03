@@ -1,5 +1,10 @@
 ﻿@model CSBugTracker.Models.Company
 
+@using CSBugTracker.Models.Enums;
+@using CSBugTracker.Services.Interfaces;
+
+@inject IBTFileService _FileService
+
 @{
     ViewData["Title"] = "Details";
 }
@@ -10,32 +15,105 @@
     <h4>Company</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Description)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Description)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageData)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageData)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageType)
-        </dd>
     </dl>
+    <div class="form-group">
+        <label asp-for="ImageFile" class="control-label">Project Image</label>
+        <img class="img-fluid border rounded-3 m-2" style="max-height: 250px;" src="@_FileService.ConvertByteArrayToFile(Model.ImageData!, Model.ImageType!,(int)DefaultImage.ProjectImage)" id="companyImage">
+        <input asp-for="ImageFile" type="file" class="form-control mt-3 pt-2" accept=".png,.jpg,.jpeg,.gif"
+               onchange="document.getElementById('companyImage').src = window.URL.createObjectURL(this.files[0])" />
+    </div>
 </div>
+
+<div class="row">
+    <div class="col-6">
+        <ul>
+            @foreach (Project project in Model.Projects)
+            {
+                <li>
+                    @project.Name
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="col-6">
+        <ul>
+            @foreach (BTUser member in Model.Members)
+            {
+                <li>
+                    @member.FullName
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+
+<!-- Create Project -->
+@*<h4>Add a New Project</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Projects" asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" rows=5 class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label name="StartDate" class="control-label"></label>
+                <input name="StartDate" class="form-control" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label name="EndDate" class="control-label"></label>
+                <input name="EndDate" class="form-control" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" name="Archived" /> @Html.DisplayNameFor(model => model.Archived)
+                </label>
+            </div>
+            <div class="form-group">
+                <label name="CompanyId" class="control-label"></label>
+                <select name="CompanyId" class="form-control" asp-items="ViewBag.CompanyId"></select>
+            </div>
+            <div class="form-group">
+                <label name="ProjectPriorityId" class="control-label"></label>
+                <select name="ProjectPriorityId" class="form-control" asp-items="ViewBag.ProjectPriorityId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="ImageFile" class="control-label">Project Image</label>
+                <img class="img-fluid border rounded-3 m-2" style="max-height: 250px;" src="@_FileService.ConvertByteArrayToFile(Model.ImageData!, Model.ImageType!,(int)DefaultImage.ProjectImage)" id="projectImage">
+                <input asp-for="ImageFile" type="file" class="form-control mt-3 pt-2" accept=".png,.jpg,.jpeg,.gif"
+                       onchange="document.getElementById('projectImage').src = window.URL.createObjectURL(this.files[0])" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>*@
+
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
