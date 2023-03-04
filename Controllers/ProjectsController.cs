@@ -45,8 +45,24 @@ namespace CSBugTracker.Controllers
             return View(projects);
         }
 
-        // GET: Projects/Details/5
-        public async Task<IActionResult> Details(int? id)
+		// GET: My Projects
+		public async Task<IActionResult> MyProjects()
+		{
+			string userId = _userManager.GetUserId(User)!;
+			BTUser? btuser = await _context.Users.Include(u => u.Projects).ThenInclude(p=>p.Tickets)
+												 .Include(u => u.Projects).ThenInclude(p => p.ProjectPriority)
+												 .Include(u => u.Projects).ThenInclude(p => p.Members)
+												 .FirstOrDefaultAsync(u => u.Id == userId);
+
+			// if admin - projects based on company
+			// if other user - projects based on user/only ones they're in? or can only interact with ones they're part of
+
+
+			return View(btuser);
+		}
+
+		// GET: Projects/Details/5
+		public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Projects == null)
             {

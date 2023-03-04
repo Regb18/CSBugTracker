@@ -26,21 +26,39 @@ namespace CSBugTracker.Controllers
         public async Task<IActionResult> Index()
         {
             string userId = _userManager.GetUserId(User)!;
+			BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
-
-            List<Ticket> tickets = await _context.Tickets.Where(t => t.SubmitterUserId == userId || t.DeveloperUserId == userId)
-                                                         .Include(t => t.DeveloperUser)
-                                                         .Include(t => t.Project)
-                                                         .Include(t => t.SubmitterUser)
-                                                         .Include(t => t.TicketPriority)
-                                                         .Include(t => t.TicketStatus)
-                                                         .Include(t => t.TicketType)
-                                                         .ToListAsync();
-            return View(tickets);
+			List<Project> projects = await _context.Projects
+													  .Where(p => p.CompanyId == btuser!.CompanyId)
+													  .Include(p => p.Company)
+													  .Include(p => p.Tickets).ThenInclude(t => t.DeveloperUser)
+													  .Include(p => p.Tickets).ThenInclude(t => t.SubmitterUser)
+													  .Include(p => p.Tickets).ThenInclude(t => t.TicketPriority)
+													  .Include(p => p.Tickets).ThenInclude(t => t.TicketStatus)
+													  .Include(p => p.Tickets).ThenInclude(t => t.TicketType)
+													  .ToListAsync();
+            return View(projects);
         }
 
-        // GET: Tickets/Details/5
-        public async Task<IActionResult> Details(int? id)
+		// GET: Tickets
+		public async Task<IActionResult> MyTickets()
+		{
+			string userId = _userManager.GetUserId(User)!;
+
+
+			List<Ticket> tickets = await _context.Tickets.Where(t => t.SubmitterUserId == userId || t.DeveloperUserId == userId)
+														 .Include(t => t.DeveloperUser)
+														 .Include(t => t.Project)
+														 .Include(t => t.SubmitterUser)
+														 .Include(t => t.TicketPriority)
+														 .Include(t => t.TicketStatus)
+														 .Include(t => t.TicketType)
+														 .ToListAsync();
+			return View(tickets);
+		}
+
+		// GET: Tickets/Details/5
+		public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Tickets == null)
             {
