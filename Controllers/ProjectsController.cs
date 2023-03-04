@@ -111,12 +111,12 @@ namespace CSBugTracker.Controllers
 
                 if (project.StartDate != null)
                 {
-                    project.StartDate = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                    project.StartDate = DataUtility.GetPostGresDate(project.StartDate.Value);
                 }
 
                 if (project.EndDate != null)
                 {
-                    project.EndDate = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                    project.EndDate = DataUtility.GetPostGresDate(project.EndDate.Value);
                 }
 
 
@@ -178,12 +178,12 @@ namespace CSBugTracker.Controllers
 
                     if (project.StartDate != null)
                     {
-                        project.StartDate = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                        project.StartDate = DataUtility.GetPostGresDate(project.StartDate.Value);
                     }
 
                     if (project.EndDate != null)
                     {
-                        project.EndDate = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                        project.EndDate = DataUtility.GetPostGresDate(project.EndDate.Value);
                     }
 
 

@@ -1,1 +1,13 @@
-/* Add here all your CSS customizations */
+.--reg-card-bg-dark {
+    background-color: #1D2127 !important;
+}
+
+.border-info {
+    border-start-start-radius: 30px;
+    border-bottom-left-radius: 30px;
+    border-color: #1D2127 !important;
+}
+
+.card-big-info-desc {
+    color: #808697;
+}

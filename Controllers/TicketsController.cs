@@ -25,7 +25,11 @@ namespace CSBugTracker.Controllers
         // GET: Tickets
         public async Task<IActionResult> Index()
         {
-            List<Ticket> tickets = await _context.Tickets.Include(t => t.DeveloperUser)
+            string userId = _userManager.GetUserId(User)!;
+
+
+            List<Ticket> tickets = await _context.Tickets.Where(t => t.SubmitterUserId == userId || t.DeveloperUserId == userId)
+                                                         .Include(t => t.DeveloperUser)
                                                          .Include(t => t.Project)
                                                          .Include(t => t.SubmitterUser)
                                                          .Include(t => t.TicketPriority)
