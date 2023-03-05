@@ -83,11 +83,28 @@ namespace CSBugTracker.Controllers
         }
 
         // GET: Tickets/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "FullName");
-            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
-            //ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "FullName");
+
+			string? userId = _userManager.GetUserId(User);
+			BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+			Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
+
+
+
+			List<BTUser> members = new List<BTUser>();
+
+			foreach (BTUser user in company!.Members)
+			{
+				if (await _userManager.IsInRoleAsync(user, "Developer"))
+				{
+					members.Add(user);
+				}
+			}
+
+
+			ViewData["DeveloperUserId"] = new SelectList(members, "Id", "FullName");
+            ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description"); 
             ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name");
             ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name");
             ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name");
