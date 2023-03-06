@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CSBugTracker.Data;
 using CSBugTracker.Models;
 using Microsoft.AspNetCore.Identity;
+using CSBugTracker.Services.Interfaces;
 
 namespace CSBugTracker.Controllers
 {
@@ -15,11 +16,13 @@ namespace CSBugTracker.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
+        private readonly IBTTicketService _ticketService;
 
-        public TicketsController(ApplicationDbContext context, UserManager<BTUser> userManager)
+        public TicketsController(ApplicationDbContext context, UserManager<BTUser> userManager, IBTTicketService ticketService)
         {
             _context = context;
             _userManager = userManager;
+            _ticketService = ticketService;
         }
 
         // GET: Tickets
@@ -65,14 +68,7 @@ namespace CSBugTracker.Controllers
                 return NotFound();
             }
 
-            Ticket? ticket = await _context.Tickets
-                .Include(t => t.DeveloperUser)
-                .Include(t => t.Project)
-                .Include(t => t.SubmitterUser)
-                .Include(t => t.TicketPriority)
-                .Include(t => t.TicketStatus)
-                .Include(t => t.TicketType)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            Ticket? ticket = await _ticketService.GetTicketAsync(id);
 
             if (ticket == null)
             {
@@ -81,6 +77,36 @@ namespace CSBugTracker.Controllers
 
             return View(ticket);
         }
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> AddTicketComment([Bind("Id,Comment,Created,TicketId,UserId")] TicketComment ticketComment, int ticketId)
+        {
+			Ticket? ticket = await _ticketService.GetTicketAsync(ticketId);
+			ModelState.Remove("UserId");
+
+			if (ModelState.IsValid)
+			{
+
+				ticketComment.UserId = _userManager.GetUserId(User);
+
+				if (User.Identity!.IsAuthenticated == true)
+				{
+					// Automatically assign author and blogpost
+					ticketComment.TicketId = ticket!.Id;
+
+					ticketComment.Created = DateTime.UtcNow;
+
+					await _ticketService.AddCommentAsync(ticketComment, ticketId);
+
+					return RedirectToAction(nameof(Details), ticket);
+				}
+			}
+
+            return RedirectToAction(nameof(Details), ticket);
+		}
+
+
 
         // GET: Tickets/Create
         public async Task<IActionResult> Create()

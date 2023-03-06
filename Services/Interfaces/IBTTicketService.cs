@@ -1,4 +1,6 @@
-﻿namespace CSBugTracker.Services.Interfaces
+﻿using CSBugTracker.Models;
+
+namespace CSBugTracker.Services.Interfaces
 {
 	public interface IBTTicketService
 	{
@@ -9,6 +11,7 @@
 		// Update Ticket
 
 		// Get Ticket
+		public Task<Ticket> GetTicketAsync(int? ticketId);
 
 		// Get Ticketsss (recent tickets, users tickets, priority, status, type, history length)
 
@@ -18,5 +21,8 @@
 		// Additional Services
 
 		// Search Tickets
+
+		// Add Ticket Comment
+		public Task AddCommentAsync(TicketComment comment, int ticketId);
 	}
 }
