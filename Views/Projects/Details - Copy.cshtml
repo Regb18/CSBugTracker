@@ -1,0 +1,230 @@
+﻿@model CSBugTracker.Models.Project
+
+@using CSBugTracker.Models.Enums;
+@using CSBugTracker.Services.Interfaces;
+
+@inject IBTFileService _FileService
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+
+<h1>Details</h1>
+
+<div>
+    <h4>Project</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.StartDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.StartDate)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.EndDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.EndDate)
+        </dd>
+        <dt class="square-img-container">
+            <img height="100" width="100" src="@_FileService.ConvertByteArrayToFile(Model.ImageData!,Model.ImageType!,(int)DefaultImage.ProjectImage)" class="square-img rounded-start" />
+        </dt>
+        <dt class="mt-3 col-sm-2">
+            @Html.DisplayNameFor(model => model.Archived)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Archived)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Company)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Company.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProjectPriority)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProjectPriority.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<h4>Create a Ticket</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Tickets" asp-action="Create" method="post">
+            <input type="hidden" name="ProjectId" value="@Model!.Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label name="Title" class="control-label">Title</label>
+                <input name="Title" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label name="Description" class="control-label">Description</label>
+                <input name="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            @*<div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> Archived
+                </label>
+            </div>*@
+            @*            <div class="form-group form-check">
+            <label class="form-check-label">
+            <input class="form-check-input" name="ArchivedByProject" /> ArchivedByProject
+            </label>
+            </div>*@
+            @*            <div class="form-group">
+            <label name="ProjectId" class="control-label">Project</label>
+            <select name="ProjectId" class="form-control" asp-items="ViewBag.ProjectId"></select>
+            </div>*@
+            <div class="form-group">
+                <label name="TicketTypeId" class="control-label">Type</label>
+                <select name="TicketTypeId" class="form-control" asp-items="ViewBag.TicketTypeId"></select>
+            </div>
+            <div class="form-group">
+                <label name="TicketStatusId" class="control-label">Status</label>
+                <select name="TicketStatusId" class="form-control" asp-items="ViewBag.TicketStatusId"></select>
+            </div>
+            <div class="form-group">
+                <label name="TicketPriorityId" class="control-label">Priority</label>
+                <select name="TicketPriorityId" class="form-control" asp-items="ViewBag.TicketPriorityId"></select>
+            </div>
+            <div class="form-group">
+                <label name="DeveloperUserId" class="control-label">Developer</label>
+                <select name="DeveloperUserId" class="form-control" asp-items="ViewBag.DeveloperUserId">
+                    <option></option>
+                </select>
+            </div>
+            @*            <div class="form-group">
+            <label name="SubmitterUserId" class="control-label">Submitter</label>
+            <select name="SubmitterUserId" class="form-control" asp-items="ViewBag.SubmitterUserId"></select>
+            </div>*@
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<h1>Tickets</h1>
+
+<table class="table-responsive">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Updated
+            </th>
+            <th>
+                Archived
+            </th>
+            <th>
+                ArchivedByProject
+            </th>
+            <th>
+                Project
+            </th>
+            <th>
+                TicketPriority
+            </th>
+            <th>
+                TicketType
+            </th>
+            <th>
+                TicketStatus
+            </th>
+            <th>
+                Developer(s)
+            </th>
+            <th>
+                Submitter
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Ticket item in Model!.Tickets)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Created)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Updated)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ArchivedByProject)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Project.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketPriority.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TicketStatus.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeveloperUser.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubmitterUser.FullName)
+                </td>
+                <td>
+                    <a asp-controller="Tickets" asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-controller="Tickets" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-controller="Tickets" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

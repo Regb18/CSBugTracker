@@ -11,6 +11,7 @@ using CSBugTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System.Net.Sockets;
 using NuGet.Protocol;
+using CSBugTracker.Extensions;
 
 namespace CSBugTracker.Controllers
 {
@@ -19,31 +20,25 @@ namespace CSBugTracker.Controllers
 		private readonly ApplicationDbContext _context;
 		private readonly IBTFileService _fileService;
 		private readonly UserManager<BTUser> _userManager;
+		private readonly IBTProjectService _projectService;
 
 		public ProjectsController(ApplicationDbContext context, 
 							      IBTFileService fileService, 
-							      UserManager<BTUser> userManager)
+							      UserManager<BTUser> userManager,
+                                  IBTProjectService projectService)
 		{
 			_context = context;
 			_fileService = fileService;
 			_userManager = userManager;
+			_projectService = projectService;
 		}
 
 		// GET: Projects
 		public async Task<IActionResult> Index()
 		{
-			string userId = _userManager.GetUserId(User)!;
-			BTUser? btuser = await _context.Users.Include(u => u.Projects).FirstOrDefaultAsync(u => u.Id == userId);
+			int companyId = User.Identity!.GetCompanyId();
 
-
-			List<Project> projects = await _context.Projects
-													  .Where(p => p.CompanyId == btuser!.CompanyId)
-													  .Include(p => p.Company)
-													  .Include(p => p.ProjectPriority)
-													  .ToListAsync();
-			// if admin - projects based on company
-			// if other user - projects based on user/only ones they're in? or can only interact with ones they're part of
-
+			IEnumerable<Project> projects = await _projectService.GetProjectsAsync(companyId);
 
 			return View(projects);
 		}
@@ -52,41 +47,33 @@ namespace CSBugTracker.Controllers
 		public async Task<IActionResult> MyProjects()
 		{
 			string userId = _userManager.GetUserId(User)!;
-			BTUser? btuser = await _context.Users.Include(u => u.Projects).ThenInclude(p => p.Tickets)
-												 .Include(u => u.Projects).ThenInclude(p => p.ProjectPriority)
-												 .Include(u => u.Projects).ThenInclude(p => p.Members)
-												 .FirstOrDefaultAsync(u => u.Id == userId);
+			BTUser? btuser = await _projectService.GetMyProjectsAsync(userId);
 
-			// if admin - projects based on company
-			// if other user - projects based on user/only ones they're in? or can only interact with ones they're part of
+            // projects based on user/only ones they're in / can only interact with ones they're part of
 
 
-			return View(btuser);
+            return View(btuser);
 		}
 
 		// GET: Projects/Details/5
 		public async Task<IActionResult> Details(int? id)
 		{
-			if (id == null || _context.Projects == null)
+			if (id == null)
 			{
 				return NotFound();
 			}
 
-			var project = await _context.Projects
-				.Include(p => p.Company)
-				.Include(p => p.ProjectPriority)
-				.Include(p => p.Tickets).ThenInclude(t => t.DeveloperUser)
-				.Include(p => p.Tickets).ThenInclude(t => t.SubmitterUser)
-				.Include(p => p.Tickets).ThenInclude(t => t.TicketPriority)
-				.Include(p => p.Tickets).ThenInclude(t => t.TicketStatus)
-				.Include(p => p.Tickets).ThenInclude(t => t.TicketType)
-				.FirstOrDefaultAsync(m => m.Id == id);
+			// this happens on the server, so it can't be tampered with
+			int companyId = User.Identity!.GetCompanyId();
+			
+			Project? project = await _projectService.GetProjectAsync(id, companyId);
 
 			if (project == null)
 			{
 				return NotFound();
 			}
 
+			// make it so you can add a ticket on details with these viewbags
 			ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "FullName");
 			ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
 			ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "FullName");
@@ -129,7 +116,7 @@ namespace CSBugTracker.Controllers
 		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Create([Bind("Id,Name,Description,Created,StartDate,EndDate,ImageFile,ImageData,ImageType,Archived,CompanyId,ProjectPriorityId")] Project project)
+		public async Task<IActionResult> Create([Bind("Id,Name,Description,Created,StartDate,EndDate,ImageFile,ImageData,ImageType,Archived,CompanyId,ProjectPriorityId")] Project project, IEnumerable<string> selected)
 		{
 			// add company from user
 			string? userId = _userManager.GetUserId(User);
@@ -161,8 +148,15 @@ namespace CSBugTracker.Controllers
 					project.ImageType = project.ImageFile.ContentType;
 				}
 
+
+
 				_context.Add(project);
 				await _context.SaveChangesAsync();
+
+
+				// Service Call
+				await _projectService.AddProjectToMembersAsync(selected, project.Id);
+
 
 				return RedirectToAction(nameof(Index));
 			}
@@ -203,8 +197,9 @@ namespace CSBugTracker.Controllers
 				}
 			}
 
+			IEnumerable<string> currentMembers = project!.Members.Select(c => c.Id);
 
-			ViewData["Members"] = new MultiSelectList(members, "Id", "FullName");
+			ViewData["Members"] = new MultiSelectList(members, "Id", "FullName", currentMembers);
 			ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
 			return View(project);
 		}
@@ -214,7 +209,7 @@ namespace CSBugTracker.Controllers
 		// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Created,StartDate,EndDate,ImageFile,ImageData,ImageType,Archived,CompanyId,ProjectPriorityId")] Project project)
+		public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Created,StartDate,EndDate,ImageFile,ImageData,ImageType,Archived,CompanyId,ProjectPriorityId")] Project project, IEnumerable<string> selected)
 		{
 			if (id != project.Id)
 			{
@@ -248,6 +243,15 @@ namespace CSBugTracker.Controllers
 
 					_context.Update(project);
 					await _context.SaveChangesAsync();
+
+
+					// Service Call
+					await _projectService.RemoveAllProjectMembersAsync(project.Id);
+
+					await _projectService.AddProjectToMembersAsync(selected, project.Id);
+
+
+
 				}
 				catch (DbUpdateConcurrencyException)
 				{

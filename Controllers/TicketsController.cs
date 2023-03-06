@@ -87,14 +87,16 @@ namespace CSBugTracker.Controllers
         {
 
 			string? userId = _userManager.GetUserId(User);
-			BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-			Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
+			BTUser? btuser = await _context.Users.Include(u => u.Company)
+									                .ThenInclude(c => c!.Members)
+									             .FirstOrDefaultAsync(u => u.Id == userId);
+			//Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
 
 
 
 			List<BTUser> members = new List<BTUser>();
 
-			foreach (BTUser user in company!.Members)
+			foreach (BTUser user in btuser!.Company!.Members)
 			{
 				if (await _userManager.IsInRoleAsync(user, "Developer"))
 				{
@@ -167,12 +169,14 @@ namespace CSBugTracker.Controllers
                                                    .FirstOrDefaultAsync(m => m.Id == id);
 
 			string? userId = _userManager.GetUserId(User);
-			BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-			Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
+			BTUser? btuser = await _context.Users.Include(u=>u.Company)
+                                                    .ThenInclude(c=>c!.Members)
+                                                 .FirstOrDefaultAsync(u => u.Id == userId);
+			//Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
 
 			List<BTUser> members = new List<BTUser>();
 
-			foreach (BTUser user in company!.Members)
+			foreach (BTUser user in btuser!.Company!.Members)
 			{
 				if (await _userManager.IsInRoleAsync(user, "Developer"))
 				{

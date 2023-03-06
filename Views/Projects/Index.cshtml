@@ -43,6 +43,9 @@
                 @Html.DisplayNameFor(model => model.ProjectPriority)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Members)
+            </th>
+            <th>
                 Image
             </th>
             <th></th>
@@ -71,10 +74,21 @@
                     @Html.DisplayFor(modelItem => item.Archived)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Company.Name)
+                    @Html.DisplayFor(modelItem => item.Company!.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.ProjectPriority.Name)
+                    @Html.DisplayFor(modelItem => item.ProjectPriority!.Name)
+                </td>
+                <td>
+                    <ul>
+                        @foreach (BTUser member in item.Members)
+                        {
+                            <li>
+                                @member.FullName
+                            </li>
+                        }
+
+                    </ul>
                 </td>
                 <td class="square-img-container">
                     <a asp-action="Details" asp-route-id="@item.Id">
