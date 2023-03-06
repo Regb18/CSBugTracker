@@ -120,7 +120,6 @@ namespace CSBugTracker.Controllers
 
 
 			ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name");
-			//ViewData["Members"] = new MultiSelectList(company!.Members, "Id", "FullName");
 			ViewData["Members"] = new MultiSelectList(members, "Id", "FullName");
 			return View(new Project());
 		}
@@ -188,7 +187,24 @@ namespace CSBugTracker.Controllers
 			{
 				return NotFound();
 			}
-			//ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
+
+
+			string? userId = _userManager.GetUserId(User);
+			BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+			Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
+
+			List<BTUser> members = new List<BTUser>();
+
+			foreach (BTUser user in company!.Members)
+			{
+				if (await _userManager.IsInRoleAsync(user, "Developer") || await _userManager.IsInRoleAsync(user, "Submitter"))
+				{
+					members.Add(user);
+				}
+			}
+
+
+			ViewData["Members"] = new MultiSelectList(members, "Id", "FullName");
 			ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
 			return View(project);
 		}

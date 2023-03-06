@@ -166,11 +166,27 @@ namespace CSBugTracker.Controllers
                                                    .Include(t => t.TicketType)
                                                    .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (ticket == null)
+			string? userId = _userManager.GetUserId(User);
+			BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+			Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
+
+			List<BTUser> members = new List<BTUser>();
+
+			foreach (BTUser user in company!.Members)
+			{
+				if (await _userManager.IsInRoleAsync(user, "Developer"))
+				{
+					members.Add(user);
+				}
+			}
+
+			if (ticket == null)
             {
                 return NotFound();
             }
-            ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "FullName", ticket.DeveloperUserId);
+
+
+            ViewData["DeveloperUserId"] = new SelectList(members, "Id", "FullName", ticket.DeveloperUserId);
             //ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description", ticket.ProjectId);
             //ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "Id", ticket.SubmitterUserId);
             ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name", ticket.TicketPriorityId);
