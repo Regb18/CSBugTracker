@@ -24,5 +24,10 @@ namespace CSBugTracker.Services.Interfaces
 
 		// Add Ticket Comment
 		public Task AddCommentAsync(TicketComment comment, int ticketId);
-	}
+
+        // Add Ticket Attachment
+        public Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment);
+
+        public Task<TicketAttachment> GetTicketAttachmentByIdAsync(int ticketAttachmentId);
+    }
 }

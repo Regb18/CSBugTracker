@@ -3,6 +3,7 @@ using System;
 using CSBugTracker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CSBugTracker.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230306224639_004-TicketAttachment-model-changes")]
+    partial class _004TicketAttachmentmodelchanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -441,6 +444,7 @@ namespace CSBugTracker.Data.Migrations
                         .HasColumnType("bytea");
 
                     b.Property<string>("FileName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("TicketId")

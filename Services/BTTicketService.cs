@@ -47,8 +47,8 @@ namespace CSBugTracker.Services
 											   .Include(t => t.TicketStatus)
 											   .Include(t => t.TicketType)
 											   .Include(t => t.TicketComments).ThenInclude(c => c.User)
-											   .Include(t => t.TicketAttachments)
-											   .Include(t => t.TicketHistory)
+											   .Include(t => t.TicketAttachments).ThenInclude(c => c.User)
+                                               .Include(t => t.TicketHistory)
 											   .FirstOrDefaultAsync(m => m.Id == ticketId);
 
 				return ticket!;
@@ -59,5 +59,40 @@ namespace CSBugTracker.Services
 				throw;
 			}
 		}
-	}
+
+        public async Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment)
+        {
+            try
+            {
+                await _context.AddAsync(ticketAttachment);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<TicketAttachment> GetTicketAttachmentByIdAsync(int ticketAttachmentId)
+        {
+            try
+            {
+                TicketAttachment? ticketAttachment = await _context.TicketAttachments
+                                                                  .Include(t => t.User)
+                                                                  .FirstOrDefaultAsync(t => t.Id == ticketAttachmentId);
+                return ticketAttachment!;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+
+
+
+    }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,8 @@ using CSBugTracker.Data;
 using CSBugTracker.Models;
 using Microsoft.AspNetCore.Identity;
 using CSBugTracker.Services.Interfaces;
+using CSBugTracker.Services;
+using System.Net.Sockets;
 
 namespace CSBugTracker.Controllers
 {
@@ -17,12 +20,17 @@ namespace CSBugTracker.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<BTUser> _userManager;
         private readonly IBTTicketService _ticketService;
+        private readonly IBTFileService _fileService;
 
-        public TicketsController(ApplicationDbContext context, UserManager<BTUser> userManager, IBTTicketService ticketService)
+        public TicketsController(ApplicationDbContext context, 
+                                 UserManager<BTUser> userManager, 
+                                 IBTTicketService ticketService, 
+                                 IBTFileService fileService)
         {
             _context = context;
             _userManager = userManager;
             _ticketService = ticketService;
+            _fileService = fileService;
         }
 
         // GET: Tickets
@@ -92,12 +100,12 @@ namespace CSBugTracker.Controllers
 
 				if (User.Identity!.IsAuthenticated == true)
 				{
-					// Automatically assign author and blogpost
+					// Automatically assign ticket Id
 					ticketComment.TicketId = ticket!.Id;
 
-					ticketComment.Created = DateTime.UtcNow;
+					ticketComment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
-					await _ticketService.AddCommentAsync(ticketComment, ticketId);
+                    await _ticketService.AddCommentAsync(ticketComment, ticketId);
 
 					return RedirectToAction(nameof(Details), ticket);
 				}
@@ -106,6 +114,47 @@ namespace CSBugTracker.Controllers
             return RedirectToAction(nameof(Details), ticket);
 		}
 
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicketAttachment([Bind("Id,FormFile,FileData,FileContentType,FileName,Description,UserId,TicketId")] TicketAttachment ticketAttachment)
+        {
+            ModelState.Remove("UserId");
+
+            string statusMessage;
+
+            if (ModelState.IsValid && ticketAttachment.FormFile != null)
+            {
+                ticketAttachment.FileData = await _fileService.ConvertFileToByteArrayAsync(ticketAttachment.FormFile);
+                ticketAttachment.FileName = ticketAttachment.FormFile.FileName;
+                ticketAttachment.FileContentType = ticketAttachment.FormFile.ContentType;
+
+                ticketAttachment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                ticketAttachment.UserId = _userManager.GetUserId(User);
+
+                await _ticketService.AddTicketAttachmentAsync(ticketAttachment);
+                statusMessage = "Success: New attachment added to Ticket.";
+            }
+            else
+            {
+                statusMessage = "Error: Invalid data.";
+
+            }
+
+            return RedirectToAction("Details", new { id = ticketAttachment.TicketId, message = statusMessage });
+        }
+
+
+        public async Task<IActionResult> ShowFile(int id)
+        {
+            TicketAttachment ticketAttachment = await _ticketService.GetTicketAttachmentByIdAsync(id);
+            string fileName = ticketAttachment.FileName!;
+            byte[] fileData = ticketAttachment.FileData!;
+            string ext = Path.GetExtension(fileName).Replace(".", "");
+
+            Response.Headers.Add("Content-Disposition", $"inline; filename={fileName}");
+            return File(fileData, $"application/{ext}");
+        }
 
 
         // GET: Tickets/Create

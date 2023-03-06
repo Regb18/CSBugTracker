@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CSBugTracker.Extensions;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CSBugTracker.Models
@@ -14,11 +16,18 @@ namespace CSBugTracker.Models
         [DataType(DataType.Date)]
         public DateTime Created { get; set; }
 
-        public byte[]? ImageData { get; set; }
-        public string? ImageType { get; set; }
+
+        public string? FileName { get; set; }
+        public byte[]? FileData { get; set; }
+        public string? FileContentType { get; set; }
+
 
         [NotMapped]
-        public IFormFile? ImageFile { get; set; }
+        [DisplayName("Select a file")]
+        [DataType(DataType.Upload)]
+        [MaxFileSize(1024 * 1024)]
+        [AllowedExtensions(new string[] { ".jpg", ".png", ".doc", ".docx", ".xls", ".xlsx", ".pdf" })]
+        public IFormFile? FormFile { get; set; }
 
         // Foreign Keys
 
