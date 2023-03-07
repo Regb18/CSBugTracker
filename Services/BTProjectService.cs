@@ -84,7 +84,7 @@ namespace CSBugTracker.Services
                     ticket.ArchivedByProject = true;
                 }
 
-                await UpdateTicketAsync(project);
+                await UpdateProjectAsync(project);
             }
             catch (Exception)
             {

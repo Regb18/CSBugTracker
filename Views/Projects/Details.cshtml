@@ -4,6 +4,8 @@
 @using CSBugTracker.Services.Interfaces;
 
 @inject IBTFileService _FileService
+@inject IBTRolesService _rolesService
+@inject IBTProjectService _projectService
 
 @{
     ViewData["Title"] = "Details";
@@ -28,9 +30,9 @@
                                 <div class="progress">
                                     @* Razor code block *@
                                     [Progress Bar code]
-@*                                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @percent%;">
-                                         Use Progress Bar code variable here 
-                                        <span class="progress-value">100%</span>
+                                    @*                                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @percent%;">
+                                    Use Progress Bar code variable here
+                                    <span class="progress-value">100%</span>
                                     </div>*@
                                 </div>
                             </div>
@@ -59,7 +61,9 @@
                         <div class="body" style="overflow-y:auto;height:300px;">
                             [Project Manager]
                             @* if() logic for Avatar/Default etc *@
-
+                            <h3>
+                                @((await _projectService.GetProjectManagerAsync(Model.Id))?.FullName ?? "Unassigned")
+                            </h3>
                         </div>
                     </div>
                 </div>
@@ -77,9 +81,12 @@
                                 [Project Members]
                                 @foreach (BTUser member in Model.Members)
                                 {
-                                    <li>
-                                        @member.FullName
-                                    </li>
+                                    if (!await _rolesService.IsUserInRoleAsync(member, nameof(BTRoles.ProjectManager)))
+                                    {
+                                        <li>
+                                            @member.FullName
+                                        </li>
+                                    }
                                 }
                                 @* Logic for avatars *@
                             </ul>
