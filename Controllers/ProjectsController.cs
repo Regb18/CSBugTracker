@@ -164,7 +164,7 @@ namespace CSBugTracker.Controllers
 
             foreach (BTUser user in await _projectService.GetMembersAsync(companyId))
             {
-                if (await _userManager.IsInRoleAsync(user, "Developer") || await _userManager.IsInRoleAsync(user, "Submitter"))
+                if (await _rolesService.IsUserInRoleAsync(user, nameof(BTRoles.Developer)) || await _rolesService.IsUserInRoleAsync(user, nameof(BTRoles.Submitter)))
                 {
                     members.Add(user);
                 }

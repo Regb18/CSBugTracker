@@ -97,6 +97,8 @@ namespace CSBugTracker.Services
 
         #endregion
 
+
+
         #region Get Projects Methods
         public async Task<BTUser> GetMyProjectsAsync(string userId)
         {
@@ -154,6 +156,7 @@ namespace CSBugTracker.Services
             }
         }
         #endregion
+
 
 
         #region Project Manager Methods
@@ -291,8 +294,6 @@ namespace CSBugTracker.Services
 
 
         #endregion
-
-
 
 
 
