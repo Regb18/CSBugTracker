@@ -21,16 +21,19 @@ namespace CSBugTracker.Controllers
 		private readonly UserManager<BTUser> _userManager;
 		private readonly IBTProjectService _projectService;
 		private readonly IBTTicketService _ticketService;
+		private readonly IBTRolesService _rolesService;
 
 		public ProjectsController(IBTFileService fileService, 
 							      UserManager<BTUser> userManager,
                                   IBTProjectService projectService,
-								  IBTTicketService ticketService)
+								  IBTTicketService ticketService,
+								  IBTRolesService rolesService)
 		{
 			_fileService = fileService;
 			_userManager = userManager;
 			_projectService = projectService;
 			_ticketService = ticketService;
+			_rolesService = rolesService;
 		}
 
 		// GET: Projects
