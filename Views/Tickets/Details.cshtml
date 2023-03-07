@@ -69,7 +69,7 @@
                                     <div class="comment-respond">
                                         <h4 class="title">Post a comment</h4>
                                         <form asp-controller="Tickets" asp-action="AddTicketComment" method="post">
-                                            <input type="hidden" name="ticketId" value="@Model.Id" />
+                                            <input type="hidden" name="TicketId" asp-for="@Model.Id" />
 
                                             <div class="row">
                                                 <!--TODO: Comment Input Section-->
@@ -77,9 +77,9 @@
                                                 <div class="form-group">                                                                  
                                                     <textarea type="text" id="commentInput" name="Comment" autocomplete="off" class="form-control"></textarea>
                                                 </div>
-                                                <div class="col-lg-12">
+                                                <div class="col-lg-12 mt-3">
                                                     <button type="submit" class="submit-button btn btn-primary btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" data-loading-text="Loading...">
-                                                        <i class="bx bx-save text-4 me-2"></i> Post Comment
+                                                        <i class="bx bx-pencil text-4 me-2"></i> Post Comment
                                                     </button>
                                                 </div>
                                             </div>
@@ -88,7 +88,7 @@
                                     <!-- End Comment Respond  -->
                                 }
                                 <hr />
-                                <h6>Comments</h6>
+                                @*<h6>Comments</h6>*@
                                 <p class="fs-5">There are currently @Model.TicketComments.Count comments</p>
                                 <ul class="right_chat list-unstyled mb-0">
                                     @*Loop to show comments made for the Ticket*@

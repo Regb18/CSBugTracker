@@ -21,7 +21,7 @@ namespace CSBugTracker.Services
         {
             try
             {
-                                                    // Positive verification to ensure this is secure
+                // Positive verification to ensure this is secure
                 Project? project = await _context.Projects.Where(p => p.CompanyId == companyId)
                         .Include(p => p.Company)
                         .Include(p => p.ProjectPriority)
@@ -48,8 +48,8 @@ namespace CSBugTracker.Services
                 BTUser? btuser = await _context.Users.Include(u => u.Projects).ThenInclude(p => p.Tickets)
                                                      .Include(u => u.Projects).ThenInclude(p => p.ProjectPriority)
                                                      .Include(u => u.Projects).ThenInclude(p => p.Members)
-													 .ThenInclude(u => u.Projects).Include(p => p.Company)
-													 .FirstOrDefaultAsync(u => u.Id == userId);
+                                                     .ThenInclude(u => u.Projects).Include(p => p.Company)
+                                                     .FirstOrDefaultAsync(u => u.Id == userId);
 
                 return btuser!;
             }
@@ -160,6 +160,27 @@ namespace CSBugTracker.Services
         }
 
 
+
+        /////// Misc. Get Members
+
+        public async Task<IEnumerable<BTUser>> GetMembersAsync(int companyId)
+        {
+            try
+            {
+                IEnumerable<BTUser> members = await _context.Users
+                                                .Where(u => u.CompanyId == companyId)
+                                                .Include(p => p.Company)
+                                                .Include(p => p.Projects)
+                                                .ToListAsync();
+
+                return members;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
 
     }

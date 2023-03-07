@@ -33,7 +33,14 @@ namespace CSBugTracker.Services.Interfaces
         public Task AddProjectToMembersAsync(IEnumerable<string> memberIds, int projectId);
         public Task<bool> IsTagOnProjectAsync(string memberId, int projectId);
         public Task RemoveAllProjectMembersAsync(int projectId);
-		// Search Projects
+        // Search Projects
 
-	}
+
+
+        // Get Members
+
+        public Task<IEnumerable<BTUser>> GetMembersAsync(int companyId);
+
+
+    }
 }

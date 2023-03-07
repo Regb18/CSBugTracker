@@ -49,8 +49,6 @@ namespace CSBugTracker.Controllers
         // GET: TicketComments/Create
         public IActionResult Create()
         {
-            ViewData["TicketId"] = new SelectList(_context.Tickets, "Id", "Description");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 

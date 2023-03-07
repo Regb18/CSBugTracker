@@ -4,30 +4,41 @@ namespace CSBugTracker.Services.Interfaces
 {
 	public interface IBTTicketService
 	{
-		// Crud Services
+        #region CRUD Services
+        public Task AddTicketAsync(Ticket ticket);
 
-		// Add Ticket
+        public Task UpdateTicketAsync(Ticket ticket);
 
-		// Update Ticket
+        public Task DeleteTicketAsync(Ticket ticket);
 
-		// Get Ticket
-		public Task<Ticket> GetTicketAsync(int? ticketId);
+        public Task<Ticket> GetTicketAsync(int? ticketId);
 
-		// Get Ticketsss (recent tickets, users tickets, priority, status, type, history length)
-
-		// Delete(Archive) Project
+        #endregion
 
 
-		// Additional Services
+        // Get Ticketsss (recent tickets, priority, status, type, history length)
+        #region Get Tickets Methods
+        public Task<IEnumerable<Project>> GetTicketsbyProjectsAsync(int companyId);
+        public Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(string userId);
+        public Task<IEnumerable<Ticket>> GetTicketsAsync();
+        public Task<IEnumerable<Ticket>> GetTicketsAsync(int companyId);
+        #endregion
 
-		// Search Tickets
+        // Additional Services
 
-		// Add Ticket Comment
-		public Task AddCommentAsync(TicketComment comment, int ticketId);
+        // Search Tickets
+
+        // Add Ticket Comment
+        public Task AddCommentAsync(TicketComment comment);
 
         // Add Ticket Attachment
         public Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment);
 
         public Task<TicketAttachment> GetTicketAttachmentByIdAsync(int ticketAttachmentId);
+
+		// Get Ticket Navigation Properties
+		public Task<IEnumerable<TicketPriority>> GetTicketPriosAsync();
+        public Task<IEnumerable<TicketStatus>> GetTicketStatusesAsync();
+        public Task<IEnumerable<TicketType>> GetTicketTypesAsync();
     }
 }

@@ -86,15 +86,11 @@ namespace CSBugTracker.Controllers
 		// GET: Projects/Create
 		public async Task<IActionResult> Create()
 		{
-			string? userId = _userManager.GetUserId(User);
-			BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-			Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
-
-
+			int companyId = User.Identity!.GetCompanyId();
 
 			List<BTUser> members = new List<BTUser>();
 			
-			foreach (BTUser user in company!.Members)
+			foreach (BTUser user in await _projectService.GetMembersAsync(companyId))
 			{
 				if (await _userManager.IsInRoleAsync(user, "Developer") || await _userManager.IsInRoleAsync(user, "Submitter"))
 				{
