@@ -16,7 +16,7 @@ namespace CSBugTracker.Services
             _context = context;
         }
 
-
+        #region CRUD Methods
         public async Task<Project> GetProjectAsync(int? projectId, int companyId)
         {
             try
@@ -41,6 +41,62 @@ namespace CSBugTracker.Services
             }
         }
 
+        public async Task AddProjectAsync(Project project)
+        {
+
+            try
+            {
+                await _context.AddAsync(project);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+        public async Task UpdateProjectAsync(Project project)
+        {
+            try
+            {
+                _context.Update(project);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task DeleteProjectAsync(Project project)
+        {
+            try
+            {
+                project.Archived = true;
+
+                foreach (Ticket ticket in project.Tickets)
+                {
+                    ticket.ArchivedByProject = true;
+                }
+
+                await UpdateTicketAsync(project);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
+        }
+
+
+        #endregion
+
+
+
+        #region Get Projects Methods
         public async Task<BTUser> GetMyProjectsAsync(string userId)
         {
             try
@@ -81,8 +137,26 @@ namespace CSBugTracker.Services
             }
         }
 
-        ///////////////////////// Add Project to Members
+        public async Task<IEnumerable<Project>> GetProjectsAsync()
+        {
+            try
+            {
+                IEnumerable<Project> projects = await _context.Projects
+                                                              .ToListAsync();
 
+                return projects;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        #endregion
+
+
+
+        #region Add Members to Project Methods
         public async Task AddProjectToMembersAsync(IEnumerable<string> memberIds, int projectId)
         {
             try
@@ -113,7 +187,6 @@ namespace CSBugTracker.Services
 
         }
 
-
         public async Task<bool> IsTagOnProjectAsync(string memberId, int projectId)
         {
             try
@@ -133,8 +206,6 @@ namespace CSBugTracker.Services
                 throw;
             }
         }
-
-
 
         public async Task RemoveAllProjectMembersAsync(int projectId)
         {
@@ -159,10 +230,11 @@ namespace CSBugTracker.Services
             }
         }
 
+        #endregion
 
 
-        /////// Misc. Get Members
 
+        #region Projects Navigation Properties
         public async Task<IEnumerable<BTUser>> GetMembersAsync(int companyId)
         {
             try
@@ -181,6 +253,25 @@ namespace CSBugTracker.Services
                 throw;
             }
         }
+        public async Task<IEnumerable<ProjectPriority>> GetProjectPriosAsync()
+        {
+            try
+            {
+                IEnumerable<ProjectPriority> projectPriorities = await _context.ProjectPriorities
+                                                                               .ToListAsync();
+
+                return projectPriorities;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        #endregion
+     
+
 
 
     }

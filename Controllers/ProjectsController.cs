@@ -17,20 +17,20 @@ namespace CSBugTracker.Controllers
 {
 	public class ProjectsController : Controller
 	{
-		private readonly ApplicationDbContext _context;
 		private readonly IBTFileService _fileService;
 		private readonly UserManager<BTUser> _userManager;
 		private readonly IBTProjectService _projectService;
+		private readonly IBTTicketService _ticketService;
 
-		public ProjectsController(ApplicationDbContext context, 
-							      IBTFileService fileService, 
+		public ProjectsController(IBTFileService fileService, 
 							      UserManager<BTUser> userManager,
-                                  IBTProjectService projectService)
+                                  IBTProjectService projectService,
+								  IBTTicketService ticketService)
 		{
-			_context = context;
 			_fileService = fileService;
 			_userManager = userManager;
 			_projectService = projectService;
+			_ticketService = ticketService;
 		}
 
 		// GET: Projects
@@ -73,13 +73,25 @@ namespace CSBugTracker.Controllers
 				return NotFound();
 			}
 
-			// make it so you can add a ticket on details with these viewbags
-			ViewData["DeveloperUserId"] = new SelectList(_context.Users, "Id", "FullName");
-			ViewData["ProjectId"] = new SelectList(_context.Projects, "Id", "Description");
-			ViewData["SubmitterUserId"] = new SelectList(_context.Users, "Id", "FullName");
-			ViewData["TicketPriorityId"] = new SelectList(_context.TicketPriorities, "Id", "Name");
-			ViewData["TicketStatusId"] = new SelectList(_context.TicketStatuses, "Id", "Name");
-			ViewData["TicketTypeId"] = new SelectList(_context.TicketTypes, "Id", "Name");
+
+			///////// For ADDING TICKETS ON DETAILS PAGE ///////////////
+			// TODO: Add In Later?
+
+   //         List<BTUser> members = new List<BTUser>();
+
+   //         foreach (BTUser user in await _projectService.GetMembersAsync(companyId))
+   //         {
+   //             if (await _userManager.IsInRoleAsync(user, "Developer"))
+   //             {
+   //                 members.Add(user);
+   //             }
+   //         }
+   //         ViewData["DeveloperUserId"] = new SelectList(members, "Id", "FullName");
+			//ViewData["ProjectId"] = new SelectList(await _projectService.GetProjectsAsync(companyId), "Id", "Name");
+			//ViewData["TicketPriorityId"] = new SelectList(await _ticketService.GetTicketPriosAsync(), "Id", "Name");
+			//ViewData["TicketStatusId"] = new SelectList(await _ticketService.GetTicketStatusesAsync(), "Id", "Name");
+			//ViewData["TicketTypeId"] = new SelectList(await _ticketService.GetTicketTypesAsync(), "Id", "Name");
+
 			return View(project);
 		}
 
@@ -102,7 +114,7 @@ namespace CSBugTracker.Controllers
 			// this is good for now, need to add in functionality to add multiple members
 
 
-			ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name");
+			ViewData["ProjectPriorityId"] = new SelectList(await _projectService.GetProjectPriosAsync(), "Id", "Name");
 			ViewData["Members"] = new MultiSelectList(members, "Id", "FullName");
 			return View(new Project());
 		}
@@ -114,16 +126,13 @@ namespace CSBugTracker.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create([Bind("Id,Name,Description,Created,StartDate,EndDate,ImageFile,ImageData,ImageType,Archived,CompanyId,ProjectPriorityId")] Project project, IEnumerable<string> selected)
 		{
-			// add company from user
-			string? userId = _userManager.GetUserId(User);
-			BTUser? btUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
 			if (ModelState.IsValid)
 			{
 
-
+				// add company from user
 				// Add companyId automatically to Project
-				project.CompanyId = btUser!.CompanyId;
+				project.CompanyId = User.Identity!.GetCompanyId();
 
 				project.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
@@ -145,9 +154,8 @@ namespace CSBugTracker.Controllers
 				}
 
 
-
-				_context.Add(project);
-				await _context.SaveChangesAsync();
+				// Service
+				await _projectService.AddProjectAsync(project);
 
 
 				// Service Call
@@ -156,47 +164,42 @@ namespace CSBugTracker.Controllers
 
 				return RedirectToAction(nameof(Index));
 			}
-			ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
-			ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
+
 			return View(project);
 		}
 
 		// GET: Projects/Edit/5
 		public async Task<IActionResult> Edit(int? id)
 		{
-			if (id == null || _context.Projects == null)
+			if (id == null)
+			{
+				return NotFound();
+			}
+
+            int companyId = User.Identity!.GetCompanyId();
+
+            Project? project = await _projectService.GetProjectAsync(id, companyId);
+
+            if (project == null)
 			{
 				return NotFound();
 			}
 
 
-			var project = await _context.Projects.Include(p => p.Members).FirstOrDefaultAsync(p => p.Id == id);
+            List<BTUser> members = new List<BTUser>();
 
+            foreach (BTUser user in await _projectService.GetMembersAsync(companyId))
+            {
+                if (await _userManager.IsInRoleAsync(user, "Developer") || await _userManager.IsInRoleAsync(user, "Submitter"))
+                {
+                    members.Add(user);
+                }
+            }
 
-			if (project == null)
-			{
-				return NotFound();
-			}
-
-
-			string? userId = _userManager.GetUserId(User);
-			BTUser? btuser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
-			Company? company = await _context.Companies.Include(c => c.Members).FirstOrDefaultAsync(u => u.Id == btuser!.CompanyId);
-
-			List<BTUser> members = new List<BTUser>();
-
-			foreach (BTUser user in company!.Members)
-			{
-				if (await _userManager.IsInRoleAsync(user, "Developer") || await _userManager.IsInRoleAsync(user, "Submitter"))
-				{
-					members.Add(user);
-				}
-			}
-
-			IEnumerable<string> currentMembers = project!.Members.Select(c => c.Id);
+            IEnumerable<string> currentMembers = members.Select(c => c.Id);
 
 			ViewData["Members"] = new MultiSelectList(members, "Id", "FullName", currentMembers);
-			ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
+			ViewData["ProjectPriorityId"] = new SelectList(await _projectService.GetProjectPriosAsync(), "Id", "Name", project.ProjectPriorityId);
 			return View(project);
 		}
 
@@ -236,9 +239,8 @@ namespace CSBugTracker.Controllers
 						project.ImageType = project.ImageFile.ContentType;
 					}
 
-
-					_context.Update(project);
-					await _context.SaveChangesAsync();
+					// Add Service
+					await _projectService.UpdateProjectAsync(project);
 
 
 					// Service Call
@@ -251,7 +253,7 @@ namespace CSBugTracker.Controllers
 				}
 				catch (DbUpdateConcurrencyException)
 				{
-					if (!ProjectExists(project.Id))
+					if (!await ProjectExists(project.Id))
 					{
 						return NotFound();
 					}
@@ -262,25 +264,23 @@ namespace CSBugTracker.Controllers
 				}
 				return RedirectToAction(nameof(Index));
 			}
-			//ViewData["CompanyId"] = new SelectList(_context.Companies, "Id", "Name", project.CompanyId);
-			ViewData["ProjectPriorityId"] = new SelectList(_context.ProjectPriorities, "Id", "Name", project.ProjectPriorityId);
+
 			return View(project);
 		}
 
 		// GET: Projects/Delete/5
 		public async Task<IActionResult> Delete(int? id)
 		{
-			if (id == null || _context.Projects == null)
+			if (id == null)
 			{
 				return NotFound();
 			}
 
-			Project? project = await _context.Projects
-										.Include(p => p.Company)
-										.Include(p => p.ProjectPriority)
-										.Include(p => p.Tickets)
-										.FirstOrDefaultAsync(m => m.Id == id);
-			if (project == null)
+            int companyId = User.Identity!.GetCompanyId();
+
+            Project? project = await _projectService.GetProjectAsync(id, companyId);
+
+            if (project == null)
 			{
 				return NotFound();
 			}
@@ -291,27 +291,20 @@ namespace CSBugTracker.Controllers
 		// POST: Projects/Delete/5
 		[HttpPost, ActionName("Delete")]
 		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> DeleteConfirmed(int id)
+		public async Task<IActionResult> DeleteConfirmed(int? id)
 		{
-			if (_context.Projects == null)
+			if (id == null)
 			{
 				return Problem("Entity set 'ApplicationDbContext.Projects'  is null.");
 			}
 
-			var project = await _context.Projects.Include(p => p.Tickets).FirstOrDefaultAsync(p => p.Id == id);
+            int companyId = User.Identity!.GetCompanyId();
 
-			try
+            Project? project = await _projectService.GetProjectAsync(id, companyId);
+
+            try
 			{
-				project!.Archived = true;
-
-				foreach (Ticket ticket in project.Tickets)
-				{
-					ticket.Archived = true;
-					ticket.ArchivedByProject = true;
-				}
-
-				_context.Update(project);
-				await _context.SaveChangesAsync();
+				await _projectService.DeleteProjectAsync(project);
 
 				return RedirectToAction(nameof(Index));
 			}
@@ -321,18 +314,11 @@ namespace CSBugTracker.Controllers
 				throw;
 			}
 
-			//if (project != null)
-			//{
-			//    _context.Projects.Remove(project);
-			//}
-
-			//await _context.SaveChangesAsync();
-			//return RedirectToAction(nameof(Index));
 		}
 
-		private bool ProjectExists(int id)
+		private async Task<bool> ProjectExists(int id)
 		{
-			return (_context.Projects?.Any(e => e.Id == id)).GetValueOrDefault();
+			return (await _projectService.GetProjectsAsync()).Any(e => e.Id == id);
 		}
 	}
 }

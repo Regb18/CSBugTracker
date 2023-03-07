@@ -4,43 +4,37 @@ namespace CSBugTracker.Services.Interfaces
 {
 	public interface IBTProjectService
 	{
-        // Crud Services
-
-        // Add Project
-
-        // Update Project
-
-        // Get Project
+        
+        #region CRUD methods
         public Task<Project> GetProjectAsync(int? projectId, int companyId);
+        public Task AddProjectAsync(Project project);
+        public Task UpdateProjectAsync(Project project);
+        public Task DeleteProjectAsync(Project project);
+        #endregion
 
-        // Delete(Archive) Project
 
-
-
-
-
-        // Get Projectsss (recent projects, users projects, priority, size(number of members), order of completion(least tickets unresolved))
+        // Get Projects (recent projects, users projects, priority, size(number of members), order of completion(least tickets unresolved))
+        #region Get Projects Methods
         public Task<BTUser> GetMyProjectsAsync(string userId);
-
         public Task<IEnumerable<Project>> GetProjectsAsync(int companyId);
-
+        public Task<IEnumerable<Project>> GetProjectsAsync();
+        #endregion
 
 
 
         // Additional Services
-
-        // Add multiple members
+        #region Add Multiple Members
         public Task AddProjectToMembersAsync(IEnumerable<string> memberIds, int projectId);
         public Task<bool> IsTagOnProjectAsync(string memberId, int projectId);
         public Task RemoveAllProjectMembersAsync(int projectId);
-        // Search Projects
+        #endregion
 
-
-
-        // Get Members
-
+        #region Projects Navigation Properties
         public Task<IEnumerable<BTUser>> GetMembersAsync(int companyId);
+        public Task<IEnumerable<ProjectPriority>> GetProjectPriosAsync();
+        #endregion
 
 
+        // Search Projects //
     }
 }
