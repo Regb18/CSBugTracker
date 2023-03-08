@@ -33,7 +33,7 @@
     <link rel="stylesheet" href="~/template/vendor/dropzone/dropzone.css" />
     <link rel="stylesheet" href="~/template/vendor/bootstrap-markdown/css/bootstrap-markdown.min.css" />
     <link rel="stylesheet" href="~/template/vendor/pnotify/pnotify.custom.css" />
-    
+
     <!-- Theme CSS -->
     <link rel="stylesheet" href="~/template/css/theme.css" />
 
@@ -301,6 +301,14 @@
                                         <span>Company</span>
                                     </a>
                                     <ul class="nav nav-children">
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <li>
+                                                <a class="nav-link" asp-controller="Companies" asp-action="ManageUserRoles">
+                                                    Manage User Roles
+                                                </a>
+                                            </li>
+                                        }
                                         <li>
                                             <a class="nav-link" asp-controller="Projects" asp-action="Index">
                                                 Projects

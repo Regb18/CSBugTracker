@@ -42,7 +42,7 @@ namespace CSBugTracker.Controllers
             _companyService = companyService;
         }
 
-        // Assign Project Manager View
+        // GET: Assign Project Manager
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AssignPM(int? id)
@@ -97,7 +97,7 @@ namespace CSBugTracker.Controllers
 
         // GET: Add Members to Project
         [HttpGet]
-        [Authorize(Roles = "Admin, Project Manager")]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> AssignProjectMembers(int? id)
         {
             if (id == null)
@@ -132,7 +132,8 @@ namespace CSBugTracker.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Admin, Project Manager")]
+        [Authorize(Roles = "Admin, ProjectManager")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignProjectMembers(ProjectMembersViewModel viewModel)
         {
             int companyId = User.Identity!.GetCompanyId();
@@ -163,7 +164,6 @@ namespace CSBugTracker.Controllers
             return View(viewModel);
 
         }
-
 
 
         // GET: Projects
