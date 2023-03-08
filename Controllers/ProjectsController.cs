@@ -25,18 +25,21 @@ namespace CSBugTracker.Controllers
         private readonly IBTProjectService _projectService;
         private readonly IBTTicketService _ticketService;
         private readonly IBTRolesService _rolesService;
+        private readonly IBTCompanyService _companyService;
 
         public ProjectsController(IBTFileService fileService,
                                   UserManager<BTUser> userManager,
                                   IBTProjectService projectService,
                                   IBTTicketService ticketService,
-                                  IBTRolesService rolesService)
+                                  IBTRolesService rolesService,
+                                  IBTCompanyService companyService)
         {
             _fileService = fileService;
             _userManager = userManager;
             _projectService = projectService;
             _ticketService = ticketService;
             _rolesService = rolesService;
+            _companyService = companyService;
         }
 
         // Assign Project Manager View
@@ -75,7 +78,7 @@ namespace CSBugTracker.Controllers
             {
                 await _projectService.AddProjectManagerAsync(viewModel.PMId, viewModel.Project?.Id);
 
-                                              // route values need to match up in name - "id" matches asp-route-id
+                // route values need to match up in name - "id" matches asp-route-id
                 return RedirectToAction(nameof(Details), new { id = viewModel.Project?.Id });
             }
 
@@ -91,6 +94,76 @@ namespace CSBugTracker.Controllers
 
             return View(viewModel);
         }
+
+        // GET: Add Members to Project
+        [HttpGet]
+        [Authorize(Roles = "Admin, Project Manager")]
+        public async Task<IActionResult> AssignProjectMembers(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            int companyId = User.Identity!.GetCompanyId();
+
+            Project? project = await _projectService.GetProjectAsync(id, companyId);
+
+            List<BTUser> submitters = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId);
+            List<BTUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+
+            // this method "Concat" returns an IEnumerable and we're declaring a list, so we need to add ToList at the end
+            List<BTUser> userList = submitters.Concat(developers).ToList();
+
+            // select lets me choose which property of BTUser I want
+            List<string> currentMembers = project.Members.Select(m => m.Id).ToList();
+
+
+
+            ProjectMembersViewModel viewModel = new()
+            {
+                Project = project,
+                UsersList = new MultiSelectList(userList, "Id", "FullName", currentMembers),
+            };
+
+
+            return View(viewModel);
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = "Admin, Project Manager")]
+        public async Task<IActionResult> AssignProjectMembers(ProjectMembersViewModel viewModel)
+        {
+            int companyId = User.Identity!.GetCompanyId();
+
+            if (viewModel.SelectedMembers != null)
+            {
+                await _projectService.RemoveAllProjectMembersAsync(viewModel.Project!.Id, companyId);
+
+                // await allows the async method to run because it's saying it'll wait for the result while the async is doing it's thing and then we'll keep going
+                await _projectService.AddProjectToMembersAsync(viewModel.SelectedMembers!, viewModel.Project!.Id, companyId);
+
+
+                return RedirectToAction(nameof(Details), new { id = viewModel.Project?.Id });
+            
+            }
+
+            ModelState.AddModelError("SelectedMembers", "No Users chosen. Please select Users.");
+            // Reset the Form
+            viewModel.Project = await _projectService.GetProjectAsync(viewModel.Project!.Id, companyId);
+            List<string> currentMembers = viewModel.Project.Members.Select(m => m.Id).ToList();
+
+            List<BTUser> submitters = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Submitter), companyId);
+            List<BTUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+            List<BTUser> userList = submitters.Concat(developers).ToList();
+
+            viewModel.UsersList = new MultiSelectList(userList, "Id", "FullName", currentMembers);
+
+            return View(viewModel);
+
+        }
+
 
 
         // GET: Projects
@@ -162,7 +235,7 @@ namespace CSBugTracker.Controllers
 
             List<BTUser> members = new List<BTUser>();
 
-            foreach (BTUser user in await _projectService.GetMembersAsync(companyId))
+            foreach (BTUser user in await _companyService.GetMembersAsync(companyId))
             {
                 if (await _rolesService.IsUserInRoleAsync(user, nameof(BTRoles.Developer)) || await _rolesService.IsUserInRoleAsync(user, nameof(BTRoles.Submitter)))
                 {
@@ -219,7 +292,7 @@ namespace CSBugTracker.Controllers
 
 
                 // Service Call
-                await _projectService.AddProjectToMembersAsync(selected, project.Id);
+                await _projectService.AddProjectToMembersAsync(selected, project.Id, project.CompanyId);
 
 
                 return RedirectToAction(nameof(Index));
@@ -248,7 +321,7 @@ namespace CSBugTracker.Controllers
 
             List<BTUser> members = new List<BTUser>();
 
-            foreach (BTUser user in await _projectService.GetMembersAsync(companyId))
+            foreach (BTUser user in await _companyService.GetMembersAsync(companyId))
             {
                 if (await _userManager.IsInRoleAsync(user, "Developer") || await _userManager.IsInRoleAsync(user, "Submitter"))
                 {
@@ -304,9 +377,9 @@ namespace CSBugTracker.Controllers
 
 
                     // Service Call
-                    await _projectService.RemoveAllProjectMembersAsync(project.Id);
+                    await _projectService.RemoveAllProjectMembersAsync(project.Id, project.CompanyId);
 
-                    await _projectService.AddProjectToMembersAsync(selected, project.Id);
+                    await _projectService.AddProjectToMembersAsync(selected, project.Id, project.CompanyId);
 
 
 

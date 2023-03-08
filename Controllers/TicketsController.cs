@@ -23,16 +23,19 @@ namespace CSBugTracker.Controllers
         private readonly IBTTicketService _ticketService;
         private readonly IBTFileService _fileService;
         private readonly IBTProjectService _projectService;
+        private readonly IBTCompanyService _companyService;
 
         public TicketsController(UserManager<BTUser> userManager,
                                  IBTTicketService ticketService,
                                  IBTFileService fileService,
-                                 IBTProjectService projectService)
+                                 IBTProjectService projectService,
+                                 IBTCompanyService companyService)
         {
             _userManager = userManager;
             _ticketService = ticketService;
             _fileService = fileService;
             _projectService = projectService;
+            _companyService = companyService;
         }
 
         // GET: Tickets
@@ -148,7 +151,7 @@ namespace CSBugTracker.Controllers
 
 			List<BTUser> members = new List<BTUser>();
 
-			foreach (BTUser user in await _projectService.GetMembersAsync(companyId))
+			foreach (BTUser user in await _companyService.GetMembersAsync(companyId))
 			{
 				if (await _userManager.IsInRoleAsync(user, "Developer"))
 				{
@@ -214,7 +217,7 @@ namespace CSBugTracker.Controllers
 
             List<BTUser> members = new List<BTUser>();
 
-            foreach (BTUser user in await _projectService.GetMembersAsync(companyId))
+            foreach (BTUser user in await _companyService.GetMembersAsync(companyId))
             {
                 if (await _userManager.IsInRoleAsync(user, "Developer"))
                 {

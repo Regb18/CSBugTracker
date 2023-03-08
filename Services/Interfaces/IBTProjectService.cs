@@ -6,7 +6,7 @@ namespace CSBugTracker.Services.Interfaces
 	{
         
         #region CRUD methods
-        public Task<Project> GetProjectAsync(int? projectId, int companyId);
+        public Task<Project> GetProjectAsync(int? projectId, int? companyId);
         public Task AddProjectAsync(Project project);
         public Task UpdateProjectAsync(Project project);
         public Task DeleteProjectAsync(Project project);
@@ -33,13 +33,12 @@ namespace CSBugTracker.Services.Interfaces
 
         // Additional Services
         #region Add Multiple Members
-        public Task AddProjectToMembersAsync(IEnumerable<string> memberIds, int projectId);
+        public Task AddProjectToMembersAsync(IEnumerable<string> memberIds, int? projectId, int? companyId);
         public Task<bool> IsMemberOnProjectAsync(string memberId, int projectId);
-        public Task RemoveAllProjectMembersAsync(int projectId);
+        public Task RemoveAllProjectMembersAsync(int? projectId, int? companyId);
         #endregion
 
         #region Projects Navigation Properties
-        public Task<IEnumerable<BTUser>> GetMembersAsync(int companyId);
         public Task<IEnumerable<ProjectPriority>> GetProjectPriosAsync();
         #endregion
 

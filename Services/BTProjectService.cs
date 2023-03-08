@@ -20,7 +20,7 @@ namespace CSBugTracker.Services
         }
 
         #region CRUD Methods
-        public async Task<Project> GetProjectAsync(int? projectId, int companyId)
+        public async Task<Project> GetProjectAsync(int? projectId, int? companyId)
         {
             try
             {
@@ -169,10 +169,10 @@ namespace CSBugTracker.Services
 
                 bool IsOnProject = project.Members.Any(m => m.Id == member.Id);
 
-                if(!IsOnProject)
+                if (!IsOnProject)
                 {
                     project.Members.Add(member);
-                    await _context .SaveChangesAsync();
+                    await _context.SaveChangesAsync();
                     return true;
                 }
 
@@ -194,7 +194,7 @@ namespace CSBugTracker.Services
                 BTUser? selectedPM = await _context.Users.FindAsync(userId);
 
                 // remove current PM
-                if(currentPM != null)
+                if (currentPM != null)
                 {
                     await RemoveProjectManagerAsync(projectId);
                 }
@@ -227,9 +227,9 @@ namespace CSBugTracker.Services
             {
                 Project? project = await _context.Projects.Include(p => p.Members).FirstOrDefaultAsync(p => p.Id == projectId);
 
-                foreach(BTUser member in project!.Members)
+                foreach (BTUser member in project!.Members)
                 {
-                    if(await _rolesService.IsUserInRoleAsync(member, nameof(BTRoles.ProjectManager))) 
+                    if (await _rolesService.IsUserInRoleAsync(member, nameof(BTRoles.ProjectManager)))
                     {
                         return member;
                     }
@@ -298,25 +298,36 @@ namespace CSBugTracker.Services
 
 
         #region Add Members to Project Methods
-        public async Task AddProjectToMembersAsync(IEnumerable<string> memberIds, int projectId)
+        public async Task AddProjectToMembersAsync(IEnumerable<string> memberIds, int? projectId, int? companyId)
         {
             try
             {
-                Project? project = await _context.Projects
-                                                 .Include(c => c.Members) // Eager Load
-                                                 .FirstOrDefaultAsync(c => c.Id == projectId);
+                Project? project = await GetProjectAsync(projectId, companyId);
 
                 foreach (string memberId in memberIds)
                 {
                     BTUser? member = await _context.Users.FindAsync(memberId);
 
+                    // can call this method as well and get rid of my if statement -
+                    // only reason not to do that is because save changes will then happen everytime through the loop
+                    // it's ok for this amount of data, but with a large amount, it will slow the app down
+                    // await AddMemberToProjectAsync(member, projectId);
+
                     if (project != null && member != null)
                     {
-                        // Can use add because we're working with objects
-                        project.Members.Add(member);
+                        bool IsOnProject = project.Members.Any(m => m.Id == member.Id);
+
+                        if (!IsOnProject)
+                        {
+                            project.Members.Add(member);
+                        }
+                        else
+                        {
+                            // good for clarity
+                            continue;
+                        }
                     }
                 }
-
                 await _context.SaveChangesAsync();
 
             }
@@ -348,22 +359,23 @@ namespace CSBugTracker.Services
             }
         }
 
-        public async Task RemoveAllProjectMembersAsync(int projectId)
+        public async Task RemoveAllProjectMembersAsync(int? projectId, int? companyId)
         {
             try
             {
-                // c represents an individual contact record in the database
-                Project? project = await _context.Projects
-                                         .Include(b => b.Members)
-                                         .FirstOrDefaultAsync(b => b.Id == projectId);
-                if (project != null)
-                {
-                    // we can do this because we used an ICollection
-                    project!.Members.Clear();
+                Project? project = await GetProjectAsync(projectId, companyId);
 
-                    _context.Update(project);
-                    await _context.SaveChangesAsync();
+                foreach (BTUser member in project.Members)
+                {
+                    if (!await _rolesService.IsUserInRoleAsync(member, nameof(BTRoles.ProjectManager)))
+                    {
+                        project!.Members.Remove(member);
+                    }
                 }
+
+                _context.Update(project);
+                await _context.SaveChangesAsync();
+
             }
             catch (Exception)
             {
@@ -376,24 +388,7 @@ namespace CSBugTracker.Services
 
 
         #region Projects Navigation Properties
-        public async Task<IEnumerable<BTUser>> GetMembersAsync(int companyId)
-        {
-            try
-            {
-                IEnumerable<BTUser> members = await _context.Users
-                                                .Where(u => u.CompanyId == companyId)
-                                                .Include(p => p.Company)
-                                                .Include(p => p.Projects)
-                                                .ToListAsync();
 
-                return members;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
         public async Task<IEnumerable<ProjectPriority>> GetProjectPriosAsync()
         {
             try
@@ -411,7 +406,7 @@ namespace CSBugTracker.Services
         }
 
         #endregion
-     
+
 
 
 
