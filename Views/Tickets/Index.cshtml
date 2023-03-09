@@ -1,4 +1,5 @@
-﻿@model IEnumerable<CSBugTracker.Models.Project>
+﻿@using CSBugTracker.Models.Enums;
+@model IEnumerable<CSBugTracker.Models.Project>
 
 @{
     ViewData["Title"] = "Index";
@@ -52,55 +53,59 @@
         </tr>
     </thead>
     <tbody>
-@foreach (Project project in Model) 
-{
+        @foreach (Project project in Model)
+        {
             @foreach (Ticket item in project.Tickets)
-            {         
-            <tr>
+            {
+                <tr>
 
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Created)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Updated)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Archived)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ArchivedByProject)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Project.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TicketPriority.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TicketType.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TicketStatus.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeveloperUser.FullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SubmitterUser.FullName)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
-            </tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Created)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Updated)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Archived)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ArchivedByProject)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => project.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TicketPriority.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TicketType.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TicketStatus.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DeveloperUser.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SubmitterUser.FullName)
+                    </td>
+                    <td>
+                        @if (User.IsInRole(nameof(BTRoles.Admin)) || User.IsInRole(nameof(BTRoles.ProjectManager)))
+                        {
+                            <a asp-action="AssignDev" asp-route-id="@item.Id">Assign Dev</a> <span>|</span>
+                        }
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
             }
-}
+        }
     </tbody>
 </table>

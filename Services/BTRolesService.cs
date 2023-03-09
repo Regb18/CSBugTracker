@@ -48,6 +48,36 @@ namespace CSBugTracker.Services
             }
         }
 
+        public async Task<List<IdentityRole>> GetMemberRolesAsync()
+        {
+            try
+            {
+                List<string> allRoles = new();
+                allRoles = await _context.Roles.Select(r => r.Name!).ToListAsync();
+                
+                List<IdentityRole> result = new();
+
+                foreach (string name in allRoles)
+                {
+                    if(name != "DemoUser")
+                    {
+                        IdentityRole? role = await _context.Roles.FirstOrDefaultAsync(r=>r.Name == name);
+
+                        result.Add(role!);
+                    }
+                }
+
+                return result;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
         public async Task<IEnumerable<string>> GetUserRolesAsync(BTUser user)
         {
             try

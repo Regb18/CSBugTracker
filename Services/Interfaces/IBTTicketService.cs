@@ -40,5 +40,12 @@ namespace CSBugTracker.Services.Interfaces
 		public Task<IEnumerable<TicketPriority>> GetTicketPriosAsync();
         public Task<IEnumerable<TicketStatus>> GetTicketStatusesAsync();
         public Task<IEnumerable<TicketType>> GetTicketTypesAsync();
+
+
+        // Ticket Developer
+        public Task<BTUser> GetTicketDeveloperAsync(int? ticketId);
+        public Task<bool> AddTicketDeveloperAsync(string? userId, int? ticketId);
+        //public Task RemoveTicketDeveloperAsync(int? ticketId);
+
     }
 }

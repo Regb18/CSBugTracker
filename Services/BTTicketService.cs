@@ -288,7 +288,67 @@ namespace CSBugTracker.Services
         #endregion
 
 
+        #region Developer on Ticket
+        public async Task<BTUser> GetTicketDeveloperAsync(int? ticketId)
+        {
+            try
+            {
+                Ticket? ticket = await _context.Tickets.Include(t => t.DeveloperUser)
+                                                       .Include(t => t.Project).ThenInclude(p => p.Members)
+                                                       .FirstOrDefaultAsync(t => t.Id == ticketId);
 
+                foreach (BTUser member in ticket!.Project!.Members)
+                {
+                    if (member.Id == ticket.DeveloperUser?.Id)
+                    {
+                        return member;
+                    }
+                }
+
+                return null!;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> AddTicketDeveloperAsync(string? userId, int? ticketId)
+        {
+            try
+            {
+                Ticket ticket = await GetTicketAsync(ticketId);
+
+                BTUser? selectedDev = await _context.Users.FindAsync(userId);
+
+                // Add new/Selected Dev
+                try
+                {
+                    ticket.DeveloperUser = selectedDev;
+                    await UpdateTicketAsync(ticket);
+
+                    return true;
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        #endregion
 
     }
 }

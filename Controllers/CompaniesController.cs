@@ -60,7 +60,7 @@ namespace CSBugTracker.Controllers
                     ManageUserRolesViewModel viewModel = new()
                     {
                         BTUser = user,
-                        Roles = new MultiSelectList(await _rolesService.GetRolesAsync(), await _rolesService.GetUserRolesAsync(user)),
+                        Roles = new MultiSelectList(await _rolesService.GetMemberRolesAsync(), await _rolesService.GetUserRolesAsync(user)),
                         SelectedRoles = (await _rolesService.GetUserRolesAsync(user)).ToList()
                     };
 
@@ -93,7 +93,6 @@ namespace CSBugTracker.Controllers
 
             }
 
-            //ModelState.AddModelError("SelectedRoles", "No Role chosen. Please select a Role.");
 
             return RedirectToAction("PortoIndex", "Home");
         }

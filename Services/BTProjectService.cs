@@ -1,5 +1,4 @@
-﻿using Azure;
-using CSBugTracker.Data;
+﻿using CSBugTracker.Data;
 using CSBugTracker.Models;
 using CSBugTracker.Models.Enums;
 using CSBugTracker.Services.Interfaces;
@@ -405,6 +404,35 @@ namespace CSBugTracker.Services
             }
         }
 
+
+        public async Task<List<BTUser>> GetProjectDevelopersAsync(int? projectId)
+        {
+            try
+            {
+                Project? project = await _context.Projects.Include(p => p.Members).FirstOrDefaultAsync(p => p.Id == projectId);
+
+                List<BTUser> members = new List<BTUser>();
+
+                if (project!.Members.Count > 0)
+                {
+                    foreach (BTUser user in project!.Members)
+                    {
+                        if (await _rolesService.IsUserInRoleAsync(user, nameof(BTRoles.Developer)))
+                        {
+                            members.Add(user);
+                        }
+                    }
+                }
+
+                return members;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         #endregion
 
 

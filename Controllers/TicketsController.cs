@@ -14,6 +14,9 @@ using CSBugTracker.Services;
 using System.Net.Sockets;
 using CSBugTracker.Extensions;
 using System.ComponentModel.Design;
+using CSBugTracker.Models.Enums;
+using CSBugTracker.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CSBugTracker.Controllers
 {
@@ -24,19 +27,79 @@ namespace CSBugTracker.Controllers
         private readonly IBTFileService _fileService;
         private readonly IBTProjectService _projectService;
         private readonly IBTCompanyService _companyService;
+        private readonly IBTRolesService _rolesService;
 
         public TicketsController(UserManager<BTUser> userManager,
                                  IBTTicketService ticketService,
                                  IBTFileService fileService,
                                  IBTProjectService projectService,
-                                 IBTCompanyService companyService)
+                                 IBTCompanyService companyService,
+                                 IBTRolesService rolesService)
         {
             _userManager = userManager;
             _ticketService = ticketService;
             _fileService = fileService;
             _projectService = projectService;
             _companyService = companyService;
+            _rolesService = rolesService;
         }
+
+        // GET: Assign Developer to Ticket
+        [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> AssignDev(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            //int companyId = User.Identity!.GetCompanyId();
+            //IEnumerable<BTUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+            Ticket? ticket = await _ticketService.GetTicketAsync(id);
+
+            List<BTUser> developers = await _projectService.GetProjectDevelopersAsync(ticket.ProjectId);
+
+            BTUser? currentDev = await _ticketService.GetTicketDeveloperAsync(id);
+
+            AddDevToTicketViewModel viewModel = new()
+            {
+                Ticket = await _ticketService.GetTicketAsync(id),
+                DevList = new SelectList(developers, "Id", "FullName", currentDev?.Id),
+                DevId = currentDev?.Id
+            };
+
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken] // makes sure any requests that are accepted come from within this application
+        [Authorize(Roles = "Admin, ProjectManager")]
+        public async Task<IActionResult> AssignDev(AddDevToTicketViewModel viewModel)
+        {
+            if (!string.IsNullOrEmpty(viewModel.DevId))
+            {
+
+                await _ticketService.AddTicketDeveloperAsync(viewModel.DevId, viewModel.Ticket?.Id);
+
+                return RedirectToAction(nameof(Index));
+            }
+
+
+            ModelState.AddModelError("DevId", "No Developer chosen. Please select a Dev.");
+
+            int companyId = User.Identity!.GetCompanyId();
+
+            IEnumerable<BTUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
+            BTUser? currentDev = await _ticketService.GetTicketDeveloperAsync(viewModel.Ticket?.Id);
+            viewModel.Ticket = await _ticketService.GetTicketAsync(viewModel.Ticket?.Id);
+            viewModel.DevList = new SelectList(developers, "Id", "FullName", currentDev?.Id);
+            viewModel.DevId = currentDev?.Id;
+
+            return View(viewModel);
+        }
+
 
         // GET: Tickets
         public async Task<IActionResult> Index()

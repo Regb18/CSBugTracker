@@ -40,6 +40,7 @@ namespace CSBugTracker.Services.Interfaces
 
         #region Projects Navigation Properties
         public Task<IEnumerable<ProjectPriority>> GetProjectPriosAsync();
+        public Task<List<BTUser>> GetProjectDevelopersAsync(int? projectId);
         #endregion
 
 

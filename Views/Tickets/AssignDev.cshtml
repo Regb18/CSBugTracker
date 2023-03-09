@@ -1,0 +1,25 @@
+﻿@model AddDevToTicketViewModel
+
+@{
+    ViewData["Title"] = "Assign Developer";
+}
+
+<div class="d-flex justify-content-center mt-5 flex-column align-items-center">
+    <h3 class="my-5">Assign Developer</h3>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title text-light">@Model.Ticket?.Title</div>
+        </div>
+        <div class="card-body">
+            <form asp-action="AssignDev" asp-controller="Tickets" method="post" class="d-flex flex-column">
+                <input type="hidden" asp-for="Ticket!.Id" />
+                <select asp-items="Model.DevList" asp-for="DevId" class="form-control">
+                    <option value="">Unassigned</option>
+                </select>
+                <span asp-validation-for="DevId" class="text-danger"></span>
+                <button type="submit" class="btn btn-primary my-3">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
