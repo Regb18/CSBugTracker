@@ -22,6 +22,10 @@ namespace CSBugTracker.Models
         public string? NewValue { get; set; }
 
 
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime Created { get; set; }
+
         // Foreign Keys
         public int TicketId { get; set; }
 

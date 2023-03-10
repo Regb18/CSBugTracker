@@ -28,13 +28,17 @@ namespace CSBugTracker.Controllers
         private readonly IBTProjectService _projectService;
         private readonly IBTCompanyService _companyService;
         private readonly IBTRolesService _rolesService;
+        private readonly IBTTicketHistoryService _historyService;
+        private readonly ApplicationDbContext _context;
 
         public TicketsController(UserManager<BTUser> userManager,
                                  IBTTicketService ticketService,
                                  IBTFileService fileService,
                                  IBTProjectService projectService,
                                  IBTCompanyService companyService,
-                                 IBTRolesService rolesService)
+                                 IBTRolesService rolesService,
+                                 IBTTicketHistoryService historyService,
+                                 ApplicationDbContext context)
         {
             _userManager = userManager;
             _ticketService = ticketService;
@@ -42,6 +46,8 @@ namespace CSBugTracker.Controllers
             _projectService = projectService;
             _companyService = companyService;
             _rolesService = rolesService;
+            _historyService = historyService;
+            _context = context;
         }
 
         // GET: Assign Developer to Ticket
@@ -79,26 +85,37 @@ namespace CSBugTracker.Controllers
         [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> AssignDev(AddDevToTicketViewModel viewModel)
         {
-            if (!string.IsNullOrEmpty(viewModel.DevId))
+            if (viewModel.DevId != null)
             {
+                // Get AsNoTracking
+                int companyId = User.Identity!.GetCompanyId();
 
-                await _ticketService.AddTicketDeveloperAsync(viewModel.DevId, viewModel.Ticket?.Id);
+                Ticket oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(viewModel.Ticket!.Id, companyId);
+
+                try
+                {
+                    await _ticketService.AddTicketDeveloperAsync(viewModel.DevId, viewModel.Ticket?.Id);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+                // Add Ticket History 
+                string? userId = _userManager.GetUserId(User);
+                Ticket? newTicket = await _ticketService.GetTicketAsNoTrackingAsync(viewModel.Ticket!.Id, companyId);
+
+                await _historyService.AddHistoryAsync(oldTicket, newTicket, userId);
+
+
 
                 return RedirectToAction(nameof(Index));
             }
 
 
-            ModelState.AddModelError("DevId", "No Developer chosen. Please select a Dev.");
 
-            int companyId = User.Identity!.GetCompanyId();
-
-            IEnumerable<BTUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
-            BTUser? currentDev = await _ticketService.GetTicketDeveloperAsync(viewModel.Ticket?.Id);
-            viewModel.Ticket = await _ticketService.GetTicketAsync(viewModel.Ticket?.Id);
-            viewModel.DevList = new SelectList(developers, "Id", "FullName", currentDev?.Id);
-            viewModel.DevId = currentDev?.Id;
-
-            return View(viewModel);
+            return RedirectToAction(nameof(AssignDev), new { id = viewModel.Ticket!.Id});
         }
 
 
@@ -134,11 +151,11 @@ namespace CSBugTracker.Controllers
 
             if (User.IsInRole(nameof(BTRoles.Admin)))
             {
-            
+
                 IEnumerable<Project> tickets = await _ticketService.GetTicketsbyProjectsAsync(companyId);
 
                 return View(tickets);
-            
+
             }
             else if (User.IsInRole(nameof(BTRoles.ProjectManager)))
             {
@@ -146,7 +163,7 @@ namespace CSBugTracker.Controllers
                 IEnumerable<Project> tickets = await _ticketService.GetUnassignedTicketsAsync(companyId, userId);
 
                 return View(tickets);
-            
+
             }
 
 
@@ -173,6 +190,7 @@ namespace CSBugTracker.Controllers
             return View(ticket);
         }
 
+        // Post: Ticket Comment
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTicketComment([Bind("Id,Comment,Created,TicketId,UserId")] TicketComment ticketComment)
@@ -191,14 +209,17 @@ namespace CSBugTracker.Controllers
 
                     await _ticketService.AddCommentAsync(ticketComment);
 
-                    return RedirectToAction("Details", new { id = ticketComment.TicketId });
+                    // Add history
+                    await _historyService.AddHistoryAsync(ticketComment.TicketId, nameof(TicketComment), ticketComment.UserId);
+
+
                 }
             }
 
             return RedirectToAction("Details", new { id = ticketComment.TicketId });
         }
 
-
+        // Post: Ticket Attachment
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTicketAttachment([Bind("Id,FormFile,FileData,FileContentType,FileName,Description,UserId,TicketId")] TicketAttachment ticketAttachment)
@@ -217,6 +238,11 @@ namespace CSBugTracker.Controllers
                 ticketAttachment.UserId = _userManager.GetUserId(User);
 
                 await _ticketService.AddTicketAttachmentAsync(ticketAttachment);
+
+                // Add History
+                await _historyService.AddHistoryAsync(ticketAttachment.TicketId, nameof(TicketAttachment), ticketAttachment.UserId);
+
+
                 statusMessage = "Success: New attachment added to Ticket.";
             }
             else
@@ -279,12 +305,25 @@ namespace CSBugTracker.Controllers
 
             if (ModelState.IsValid)
             {
-                ticket.SubmitterUserId = _userManager.GetUserId(User);
+                string? userId = _userManager.GetUserId(User);
 
-                ticket.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                ticket.SubmitterUserId = userId;
+
+                ticket.Created = DataUtility.GetPostGresDate(DateTime.Now);
+
+                // set status id = "new"
 
 
                 await _ticketService.AddTicketAsync(ticket);
+
+
+                // Add History Record
+                int companyId = User.Identity!.GetCompanyId();
+                Ticket? newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
+
+                await _historyService.AddHistoryAsync(null, newTicket, userId);
+
+
 
                 return RedirectToAction("Details", new { id = ticket.Id });
 
@@ -345,11 +384,17 @@ namespace CSBugTracker.Controllers
 
             if (ModelState.IsValid)
             {
+
+                int companyId = User.Identity!.GetCompanyId();
+                string? userId = _userManager.GetUserId(User);
+                Ticket? oldTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
+
+
                 try
                 {
 
                     ticket.Created = DataUtility.GetPostGresDate(ticket.Created);
-                    ticket.Updated = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                    ticket.Updated = DataUtility.GetPostGresDate(DateTime.Now);
 
 
                     await _ticketService.UpdateTicketAsync(ticket);
@@ -365,6 +410,14 @@ namespace CSBugTracker.Controllers
                         throw;
                     }
                 }
+
+                // Add History
+                Ticket? newTicket = await _ticketService.GetTicketAsNoTrackingAsync(ticket.Id, companyId);
+
+                // Add Ticket History
+                await _historyService.AddHistoryAsync(oldTicket, newTicket, userId);
+
+
                 return RedirectToAction(nameof(Index));
             }
 

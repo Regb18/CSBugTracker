@@ -23,6 +23,7 @@ namespace CSBugTracker.Services.Interfaces
         public Task<IEnumerable<Ticket>> GetTicketsAsync();
         public Task<IEnumerable<Ticket>> GetTicketsAsync(int companyId);
         public Task<IEnumerable<Project>> GetUnassignedTicketsAsync(int companyId, string userId);
+        public Task<Ticket> GetTicketAsNoTrackingAsync(int? ticketId, int? companyId);
         #endregion
 
         // Additional Services

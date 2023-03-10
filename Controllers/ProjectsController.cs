@@ -267,7 +267,7 @@ namespace CSBugTracker.Controllers
                 // Add companyId automatically to Project
                 project.CompanyId = User.Identity!.GetCompanyId();
 
-                project.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                project.Created = DataUtility.GetPostGresDate(DateTime.Now);
 
                 if (project.StartDate != null)
                 {
