@@ -301,14 +301,6 @@
                                         <span>Company</span>
                                     </a>
                                     <ul class="nav nav-children">
-                                        @if (User.IsInRole("Admin"))
-                                        {
-                                            <li>
-                                                <a class="nav-link" asp-controller="Companies" asp-action="ManageUserRoles">
-                                                    Manage User Roles
-                                                </a>
-                                            </li>
-                                        }
                                         <li>
                                             <a class="nav-link" asp-controller="Projects" asp-action="Index">
                                                 Projects
@@ -329,6 +321,22 @@
                                                 My Tickets
                                             </a>
                                         </li>
+                                        @if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
+                                        {
+                                            <li>
+                                                <a class="nav-link" asp-controller="Tickets" asp-action="UnassignedTickets">
+                                                    Unassigned Tickets
+                                                </a>
+                                            </li>
+                                        }
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <li>
+                                                <a class="nav-link" asp-controller="Companies" asp-action="ManageUserRoles">
+                                                    Manage User Roles
+                                                </a>
+                                            </li>
+                                        }
                                     </ul>
                                 </li>
                                 <li>

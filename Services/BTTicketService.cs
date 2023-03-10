@@ -184,6 +184,32 @@ namespace CSBugTracker.Services
             }
         }
 
+
+        public async Task<IEnumerable<Project>> GetUnassignedTicketsAsync(int companyId, string userId)
+        {
+            try
+            {
+                BTUser? user = await _context.Users.FindAsync(userId);
+
+                IEnumerable<Project> managerTickets = await _context.Projects
+                                                          .Where(p => p.CompanyId == companyId && p.Members.Contains(user!))
+                                                          .Include(p => p.Company)
+                                                          .Include(p => p.Tickets).ThenInclude(t => t.DeveloperUser)
+                                                          .Include(p => p.Tickets).ThenInclude(t => t.SubmitterUser)
+                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketPriority)
+                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketStatus)
+                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketType)
+                                                          .ToListAsync();
+
+                return managerTickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         #endregion
 
 

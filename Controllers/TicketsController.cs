@@ -73,6 +73,7 @@ namespace CSBugTracker.Controllers
             return View(viewModel);
         }
 
+        // POST: Assign Dev
         [HttpPost]
         [ValidateAntiForgeryToken] // makes sure any requests that are accepted come from within this application
         [Authorize(Roles = "Admin, ProjectManager")]
@@ -111,18 +112,49 @@ namespace CSBugTracker.Controllers
             return View(projectsTickets);
         }
 
-		// GET: Tickets
-		public async Task<IActionResult> MyTickets()
-		{
-			string userId = _userManager.GetUserId(User)!;
+        // GET: Tickets
+        public async Task<IActionResult> MyTickets()
+        {
+            string userId = _userManager.GetUserId(User)!;
 
             IEnumerable<Ticket> tickets = await _ticketService.GetTicketsbyUserAsync(userId);
 
-			return View(tickets);
-		}
+            return View(tickets);
+        }
 
-		// GET: Tickets/Details/5
-		public async Task<IActionResult> Details(int? id)
+
+        // GET: Unassigned Tickets
+        public async Task<IActionResult> UnassignedTickets()
+        {
+            int companyId = User.Identity!.GetCompanyId();
+            string userId = _userManager.GetUserId(User)!;
+
+
+            if (User.IsInRole(nameof(BTRoles.Admin)))
+            {
+            
+                IEnumerable<Project> tickets = await _ticketService.GetTicketsbyProjectsAsync(companyId);
+
+                return View(tickets);
+            
+            }
+            else if (User.IsInRole(nameof(BTRoles.ProjectManager)))
+            {
+
+                IEnumerable<Project> tickets = await _ticketService.GetUnassignedTicketsAsync(companyId, userId);
+
+                return View(tickets);
+            
+            }
+
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+        // GET: Tickets/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -130,7 +162,7 @@ namespace CSBugTracker.Controllers
             }
 
             Ticket? ticket = await _ticketService.GetTicketAsync(id);
-           
+
             if (ticket == null)
             {
                 return NotFound();
@@ -139,27 +171,27 @@ namespace CSBugTracker.Controllers
             return View(ticket);
         }
 
-		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> AddTicketComment([Bind("Id,Comment,Created,TicketId,UserId")] TicketComment ticketComment)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTicketComment([Bind("Id,Comment,Created,TicketId,UserId")] TicketComment ticketComment)
         {
-			ModelState.Remove("UserId");
+            ModelState.Remove("UserId");
 
-			if (ModelState.IsValid)
-			{
+            if (ModelState.IsValid)
+            {
 
-				ticketComment.UserId = _userManager.GetUserId(User);
+                ticketComment.UserId = _userManager.GetUserId(User);
 
-				if (User.Identity!.IsAuthenticated == true)
-				{
+                if (User.Identity!.IsAuthenticated == true)
+                {
 
-					ticketComment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                    ticketComment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
 
                     await _ticketService.AddCommentAsync(ticketComment);
 
-                    return RedirectToAction("Details", new { id = ticketComment.TicketId});
+                    return RedirectToAction("Details", new { id = ticketComment.TicketId });
                 }
-			}
+            }
 
             return RedirectToAction("Details", new { id = ticketComment.TicketId });
         }
@@ -212,19 +244,19 @@ namespace CSBugTracker.Controllers
         {
             int companyId = User.Identity!.GetCompanyId();
 
-			List<BTUser> members = new List<BTUser>();
+            List<BTUser> members = new List<BTUser>();
 
-			foreach (BTUser user in await _companyService.GetMembersAsync(companyId))
-			{
-				if (await _userManager.IsInRoleAsync(user, "Developer"))
-				{
-					members.Add(user);
-				}
-			}
+            foreach (BTUser user in await _companyService.GetMembersAsync(companyId))
+            {
+                if (await _userManager.IsInRoleAsync(user, "Developer"))
+                {
+                    members.Add(user);
+                }
+            }
 
 
-			ViewData["DeveloperUserId"] = new SelectList(members, "Id", "FullName");
-            ViewData["ProjectId"] = new SelectList(await _projectService.GetProjectsAsync(companyId), "Id", "Name"); 
+            ViewData["DeveloperUserId"] = new SelectList(members, "Id", "FullName");
+            ViewData["ProjectId"] = new SelectList(await _projectService.GetProjectsAsync(companyId), "Id", "Name");
             ViewData["TicketPriorityId"] = new SelectList(await _ticketService.GetTicketPriosAsync(), "Id", "Name");
             ViewData["TicketStatusId"] = new SelectList(await _ticketService.GetTicketStatusesAsync(), "Id", "Name");
             ViewData["TicketTypeId"] = new SelectList(await _ticketService.GetTicketTypesAsync(), "Id", "Name");
@@ -269,7 +301,7 @@ namespace CSBugTracker.Controllers
 
             Ticket? ticket = await _ticketService.GetTicketAsync(id);
 
-			if (ticket == null)
+            if (ticket == null)
             {
                 return NotFound();
             }
