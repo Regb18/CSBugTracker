@@ -10,11 +10,6 @@ namespace CSBugTracker.Data
     // we don't have to instantiate this since it's static
     public static class DataUtility
     {
-        //private const string _adminRole = "Admin";
-        //private const string _moderatorRole = "Moderator";
-        //private const string _adminEmail = "racbarnes18@mailinator.com";
-        //private const string _moderatorEmail = "rbmoderator8@mailinator.com";
-
         private static int company1Id;
         private static int company2Id;
         private static int company3Id;
@@ -79,8 +74,6 @@ namespace CSBugTracker.Data
             // Migration: This is the programattic equivalent to Update-Database
             await dbContextSvc.Database.MigrateAsync();
 
-            // Old method to Delete
-            //await SeedUsersAsync(userManagerSvc, dbContextSvc, configurationSvc);
 
             await SeedRolesAsync(roleManagerSvc);
             await SeedDefaultCompaniesAsync(dbContextSvc);

@@ -124,6 +124,8 @@ namespace CSBugTracker.Controllers
 
 
         // GET: Unassigned Tickets
+        [HttpGet]
+        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> UnassignedTickets()
         {
             int companyId = User.Identity!.GetCompanyId();
