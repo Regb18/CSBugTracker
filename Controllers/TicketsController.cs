@@ -29,7 +29,6 @@ namespace CSBugTracker.Controllers
         private readonly IBTCompanyService _companyService;
         private readonly IBTRolesService _rolesService;
         private readonly IBTTicketHistoryService _historyService;
-        private readonly ApplicationDbContext _context;
 
         public TicketsController(UserManager<BTUser> userManager,
                                  IBTTicketService ticketService,
@@ -37,8 +36,7 @@ namespace CSBugTracker.Controllers
                                  IBTProjectService projectService,
                                  IBTCompanyService companyService,
                                  IBTRolesService rolesService,
-                                 IBTTicketHistoryService historyService,
-                                 ApplicationDbContext context)
+                                 IBTTicketHistoryService historyService)
         {
             _userManager = userManager;
             _ticketService = ticketService;
@@ -47,7 +45,6 @@ namespace CSBugTracker.Controllers
             _companyService = companyService;
             _rolesService = rolesService;
             _historyService = historyService;
-            _context = context;
         }
 
         // GET: Assign Developer to Ticket
@@ -205,7 +202,7 @@ namespace CSBugTracker.Controllers
                 if (User.Identity!.IsAuthenticated == true)
                 {
 
-                    ticketComment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                    ticketComment.Created = DataUtility.GetPostGresDate(DateTime.Now);
 
                     await _ticketService.AddCommentAsync(ticketComment);
 
@@ -234,7 +231,7 @@ namespace CSBugTracker.Controllers
                 ticketAttachment.FileName = ticketAttachment.FormFile.FileName;
                 ticketAttachment.FileContentType = ticketAttachment.FormFile.ContentType;
 
-                ticketAttachment.Created = DataUtility.GetPostGresDate(DateTime.UtcNow);
+                ticketAttachment.Created = DataUtility.GetPostGresDate(DateTime.Now);
                 ticketAttachment.UserId = _userManager.GetUserId(User);
 
                 await _ticketService.AddTicketAttachmentAsync(ticketAttachment);

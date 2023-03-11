@@ -166,7 +166,7 @@ namespace CSBugTracker.Services
         {
             try
             {
-                IEnumerable<Ticket> tickets = await _context.Tickets.Where(t => t.SubmitterUserId == userId || t.DeveloperUserId == userId)
+                IEnumerable<Ticket> tickets = await _context.Tickets.Where(t => (t.SubmitterUserId == userId || t.DeveloperUserId == userId) && t.Archived == false && t.ArchivedByProject == false)
                                                              .Include(t => t.DeveloperUser)
                                                              .Include(t => t.Project)
                                                              .Include(t => t.SubmitterUser)
