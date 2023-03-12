@@ -105,74 +105,21 @@ namespace CSBugTracker.Services
                 throw;
             }
         }
-        public async Task<IEnumerable<Ticket>> GetTicketsAsync(int companyId)
+
+        public async Task<IEnumerable<Ticket>> GetTicketsAsync(string? userId,int? companyId)
         {
             try
             {
-                IEnumerable<Project> projectsTickets = await _context.Projects
-                                                          .Where(p => p.CompanyId == companyId)                                                         
-                                                          .Include(p => p.Company)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.DeveloperUser)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.SubmitterUser)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketPriority)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketStatus)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketType)
-                                                          .ToListAsync();
+                BTUser? user = await _context.Users.FindAsync(userId);
 
-                List<Ticket> tickets = new List<Ticket>();
-
-                foreach (Project project in projectsTickets)
-                {
-                    foreach (Ticket ticket in project.Tickets)
-                    {
-                        tickets.Add(ticket);
-                    }
-
-                }
-                
-                return tickets;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Project>> GetTicketsbyProjectsAsync(int companyId)
-        {
-            try
-            {
-                IEnumerable<Project> projectsTickets = await _context.Projects
-                                                          .Where(p => p.CompanyId == companyId)
-                                                          .Include(p => p.Company)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.DeveloperUser)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.SubmitterUser)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketPriority)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketStatus)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketType)
-                                                          .ToListAsync();
-
-                return projectsTickets;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(string userId)
-        {
-            try
-            {
-                IEnumerable<Ticket> tickets = await _context.Tickets.Where(t => (t.SubmitterUserId == userId || t.DeveloperUserId == userId) && t.Archived == false && t.ArchivedByProject == false)
+                IEnumerable<Ticket> tickets = await _context.Tickets
                                                              .Include(t => t.DeveloperUser)
                                                              .Include(t => t.Project)
                                                              .Include(t => t.SubmitterUser)
                                                              .Include(t => t.TicketPriority)
                                                              .Include(t => t.TicketStatus)
                                                              .Include(t => t.TicketType)
+                                                             .Where(t => t.Project!.CompanyId == companyId && t.Archived == false && t.ArchivedByProject == false)
                                                              .ToListAsync();
 
                 return tickets;
@@ -185,23 +132,130 @@ namespace CSBugTracker.Services
         }
 
 
-        public async Task<IEnumerable<Project>> GetUnassignedTicketsAsync(int companyId, string userId)
+        public async Task<IEnumerable<Ticket>> GetTicketsbyProjectsAsync(int? companyId, int? projectId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Include(t => t.TicketPriority)
+                                                             .Include(t => t.TicketStatus)
+                                                             .Include(t => t.TicketType)
+                                                             .Where(t => t.ProjectId == projectId && t.Project!.CompanyId == companyId && t.Archived == false && t.ArchivedByProject == false)
+                                                             .ToListAsync();
+
+                return tickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(string? userId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Include(t => t.TicketPriority)
+                                                             .Include(t => t.TicketStatus)
+                                                             .Include(t => t.TicketType)
+                                                             .Where(t => (t.SubmitterUserId == userId || t.DeveloperUserId == userId) && t.Archived == false && t.ArchivedByProject == false)
+                                                             .ToListAsync();
+
+                return tickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        public async Task<IEnumerable<Ticket>> GetUnassignedTicketsAsync(int? companyId, string? userId)
         {
             try
             {
                 BTUser? user = await _context.Users.FindAsync(userId);
 
-                IEnumerable<Project> managerTickets = await _context.Projects
-                                                          .Where(p => p.CompanyId == companyId && p.Members.Contains(user!))
-                                                          .Include(p => p.Company)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.DeveloperUser)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.SubmitterUser)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketPriority)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketStatus)
-                                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketType)
-                                                          .ToListAsync();
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Include(t => t.TicketPriority)
+                                                             .Include(t => t.TicketStatus)
+                                                             .Include(t => t.TicketType)
+                                                             .Where(t => t.Project!.CompanyId == companyId && t.Archived == false && t.ArchivedByProject == false && t.DeveloperUserId == null)
+                                                             .ToListAsync();
 
-                return managerTickets;
+                return tickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        public async Task<IEnumerable<Ticket>> GetPMUnassignedTicketsAsync(int? companyId, string? userId)
+        {
+            try
+            {
+                BTUser? user = await _context.Users.FindAsync(userId);
+
+                //IEnumerable<Project> managerTickets = await _context.Projects
+                //                                          .Where(p => p.CompanyId == companyId && p.Members.Contains(user!))
+                //                                          .Include(p => p.Company)
+                //                                          .Include(p => p.Tickets).ThenInclude(t => t.DeveloperUser)
+                //                                          .Include(p => p.Tickets).ThenInclude(t => t.SubmitterUser)
+                //                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketPriority)
+                //                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketStatus)
+                //                                          .Include(p => p.Tickets).ThenInclude(t => t.TicketType)
+                //                                          .ToListAsync();
+
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                             .Include(t => t.DeveloperUser)
+                                             .Include(t => t.Project)
+                                             .Include(t => t.SubmitterUser)
+                                             .Include(t => t.TicketPriority)
+                                             .Include(t => t.TicketStatus)
+                                             .Include(t => t.TicketType)
+                                             .Where(t => t.Project!.CompanyId == companyId && t.Archived == false && t.ArchivedByProject == false && t.Project.Members.Contains(user!) && t.DeveloperUserId == null)
+                                             .ToListAsync();
+                return tickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<Ticket>> GetArchivedTicketsAsync(string? userId, int? companyId)
+        {
+            try
+            {
+                BTUser? user = await _context.Users.FindAsync(userId);
+
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Include(t => t.TicketPriority)
+                                                             .Include(t => t.TicketStatus)
+                                                             .Include(t => t.TicketType)
+                                                             .Where(t => t.Project!.CompanyId == companyId && (t.Archived == true || t.ArchivedByProject == true))
+                                                             .ToListAsync();
+
+                return tickets;
             }
             catch (Exception)
             {

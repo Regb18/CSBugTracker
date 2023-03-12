@@ -18,11 +18,13 @@ namespace CSBugTracker.Services.Interfaces
 
         // Get Ticketsss (recent tickets, priority, status, type, history length)
         #region Get Tickets Methods
-        public Task<IEnumerable<Project>> GetTicketsbyProjectsAsync(int companyId);
-        public Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(string userId);
         public Task<IEnumerable<Ticket>> GetTicketsAsync();
-        public Task<IEnumerable<Ticket>> GetTicketsAsync(int companyId);
-        public Task<IEnumerable<Project>> GetUnassignedTicketsAsync(int companyId, string userId);
+        public Task<IEnumerable<Ticket>> GetTicketsAsync(string? userId, int? companyId);
+        public Task<IEnumerable<Ticket>> GetTicketsbyProjectsAsync(int? companyId, int? projectId);
+        public Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(string? userId);
+        public Task<IEnumerable<Ticket>> GetUnassignedTicketsAsync(int? companyId, string? userId);
+        public Task<IEnumerable<Ticket>> GetPMUnassignedTicketsAsync(int? companyId, string? userId);
+        public Task<IEnumerable<Ticket>> GetArchivedTicketsAsync(string? userId, int? companyId);
         public Task<Ticket> GetTicketAsNoTrackingAsync(int? ticketId, int? companyId);
         #endregion
 

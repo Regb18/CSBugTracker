@@ -91,7 +91,7 @@
                             <td>@ticket.TicketPriority!.Name</td>
                             <td>@ticket.TicketType!.Name</td>
                             <td class="ecommerce-status active">@ticket.TicketStatus!.Name</td>
-                            @if (ticket.DeveloperUserId == null)
+                            @if (ticket.DeveloperUserId == null && (User.IsInRole(nameof(BTRoles.Admin)) || User.IsInRole(nameof(BTRoles.ProjectManager))))
                             {
                                 <td class="actions-hover actions-fade">
                                     <a asp-action="AssignDev" asp-route-id="@ticket.Id">Assign Dev <i class="fas fa-code"></i></a>

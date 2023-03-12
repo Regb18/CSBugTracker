@@ -116,17 +116,34 @@ namespace CSBugTracker.Controllers
         }
 
 
-        // GET: Tickets
+
+        // GET: All Tickets Not Archived
         public async Task<IActionResult> Index()
+        {
+            string? userId = _userManager.GetUserId(User);
+
+            int companyId = User.Identity!.GetCompanyId();
+
+            IEnumerable<Ticket> tickets = await _ticketService.GetTicketsAsync(userId, companyId);
+
+            return View(tickets);
+        }
+
+
+
+        // GET: Tickets from Project
+        public async Task<IActionResult> ProjectTickets(int? id)
         {
             int companyId = User.Identity!.GetCompanyId();
 
-            IEnumerable<Project> projectsTickets = await _ticketService.GetTicketsbyProjectsAsync(companyId);
+            IEnumerable<Ticket> projectsTickets = await _ticketService.GetTicketsbyProjectsAsync(companyId, id);
 
             return View(projectsTickets);
         }
 
-        // GET: Tickets
+
+
+        // GET: User Tickets
         public async Task<IActionResult> MyTickets()
         {
             string userId = _userManager.GetUserId(User)!;
@@ -149,7 +166,7 @@ namespace CSBugTracker.Controllers
             if (User.IsInRole(nameof(BTRoles.Admin)))
             {
 
-                IEnumerable<Project> tickets = await _ticketService.GetTicketsbyProjectsAsync(companyId);
+                IEnumerable<Ticket> tickets = await _ticketService.GetUnassignedTicketsAsync(companyId, userId);
 
                 return View(tickets);
 
@@ -157,7 +174,7 @@ namespace CSBugTracker.Controllers
             else if (User.IsInRole(nameof(BTRoles.ProjectManager)))
             {
 
-                IEnumerable<Project> tickets = await _ticketService.GetUnassignedTicketsAsync(companyId, userId);
+                IEnumerable<Ticket> tickets = await _ticketService.GetPMUnassignedTicketsAsync(companyId, userId);
 
                 return View(tickets);
 
@@ -167,6 +184,18 @@ namespace CSBugTracker.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
+        // GET: Archived Tickets
+        public async Task<IActionResult> ArchivedTickets()
+        {
+            string? userId = _userManager.GetUserId(User);
+
+            int companyId = User.Identity!.GetCompanyId();
+
+            IEnumerable<Ticket> tickets = await _ticketService.GetArchivedTicketsAsync(userId, companyId);
+
+            return View(tickets);
+        }
 
 
         // GET: Tickets/Details/5

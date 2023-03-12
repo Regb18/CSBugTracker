@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<CSBugTracker.Models.Ticket>
 
+
 @using CSBugTracker.Data;
 @using CSBugTracker.Models.Enums;
 @using Microsoft.AspNetCore.Identity;
@@ -8,12 +9,14 @@
 @inject ApplicationDbContext _context
 
 @{
-    ViewData["Title"] = "UnassignedTickets";
+    ViewData["Title"] = "Index";
     string? userId = _userManager.GetUserId(User);
     BTUser? btUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 }
 
-<h1>Unassigned Tickets</h1>
+
+<h1>All Tickets</h1>
+
 
 <div class="col">
     <section class="card">
@@ -23,7 +26,7 @@
                 <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
             </div>
 
-            <h2 class="card-title">Tickets</h2>
+            <h2 class="card-title">Company Tickets</h2>
         </header>
         <div class="card-body">
             <div class="datatable-header">
@@ -79,7 +82,10 @@
                         <th>Status</th>
                         <th>Developer</th>
                         <th>Submitter</th>
-                        <th>Actions</th>
+                        @if (User.IsInRole(nameof(BTRoles.Admin)) || User.IsInRole(nameof(BTRoles.ProjectManager)))
+                        {
+                            <th>Actions</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -95,15 +101,25 @@
                             <td>@ticket.TicketPriority!.Name</td>
                             <td>@ticket.TicketType!.Name</td>
                             <td class="ecommerce-status active">@ticket.TicketStatus!.Name</td>
-                            <td class="actions-hover actions-fade">
-                                <a asp-action="AssignDev" asp-route-id="@ticket.Id">Assign Dev <i class="fas fa-code"></i></a>
-                            </td>
+                            @if (ticket.DeveloperUserId == null && (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!))))
+                            {
+                                <td class="actions-hover actions-fade">
+                                    <a asp-action="AssignDev" asp-route-id="@ticket.Id">Assign Dev <i class="fas fa-code"></i></a>
+                                </td>
+                            }
+                            else
+                            {
+                                <td>@ticket.DeveloperUser?.FullName</td>
+                            }
                             <td>@ticket.SubmitterUser!.FullName</td>
-                            <td class="actions-hover actions-fade">
-                                <a asp-action="Edit" asp-route-id="@ticket.Id"><i class="fas fa-pencil-alt"></i></a>
-                                <a asp-action="Delete" asp-route-id="@ticket.Id" class="delete-row"><i class="far fa-trash-alt"></i></a>
-                                <a asp-action="AssignDev" asp-route-id="@ticket.Id"><i class="fas fa-code"></i></a>
-                            </td>
+                            @if (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!)))
+                            {
+                                <td class="actions-hover actions-fade">
+                                    <a asp-action="Edit" asp-route-id="@ticket.Id"><i class="fas fa-pencil-alt"></i></a>
+                                    <a asp-action="Delete" asp-route-id="@ticket.Id" class="delete-row"><i class="far fa-trash-alt"></i></a>
+                                    <a asp-action="AssignDev" asp-route-id="@ticket.Id"><i class="fas fa-code"></i></a>
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>
