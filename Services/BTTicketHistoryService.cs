@@ -1,6 +1,7 @@
 ﻿using CSBugTracker.Data;
 using CSBugTracker.Models;
 using CSBugTracker.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace CSBugTracker.Services
 {
@@ -214,5 +215,25 @@ namespace CSBugTracker.Services
         {
             throw new NotImplementedException();
         }
+
+        public async Task<IEnumerable<TicketHistory>> GetRecentTicketHistoryAsync(int? ticketId)
+        {
+            try
+            {
+                IEnumerable<TicketHistory> history = await _context.TicketHistories
+                                                                   .Where(a => a.TicketId == ticketId)
+                                                                   .Include(a => a.User)
+                                                                   .Include(a => a.Ticket)
+                                                                   .ToListAsync();
+
+                return history.OrderByDescending(a => a.Created);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
     }
 }

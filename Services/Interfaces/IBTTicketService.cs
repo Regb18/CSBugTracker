@@ -35,13 +35,20 @@ namespace CSBugTracker.Services.Interfaces
         // Add Ticket Comment
         public Task AddCommentAsync(TicketComment comment);
 
+
         // Add Ticket Attachment
         public Task AddTicketAttachmentAsync(TicketAttachment ticketAttachment);
 
         public Task<TicketAttachment> GetTicketAttachmentByIdAsync(int ticketAttachmentId);
 
-		// Get Ticket Navigation Properties
-		public Task<IEnumerable<TicketPriority>> GetTicketPriosAsync();
+
+        // Get Recent Comments and Attachments
+        public Task<IEnumerable<TicketComment>> GetRecentTicketCommentsAsync(int? ticketId);
+        public Task<IEnumerable<TicketAttachment>> GetRecentTicketAttachmentsAsync(int? ticketId);
+
+
+        // Get Ticket Navigation Properties
+        public Task<IEnumerable<TicketPriority>> GetTicketPriosAsync();
         public Task<IEnumerable<TicketStatus>> GetTicketStatusesAsync();
         public Task<IEnumerable<TicketType>> GetTicketTypesAsync();
 

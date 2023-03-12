@@ -24,9 +24,10 @@ namespace CSBugTracker.Services.Interfaces
 
         // Get Projects (recent projects, users projects, priority, size(number of members), order of completion(least tickets unresolved))
         #region Get Projects Methods
-        public Task<BTUser> GetMyProjectsAsync(string userId);
-        public Task<IEnumerable<Project>> GetProjectsAsync(int companyId);
+        public Task<IEnumerable<Project>> GetMyProjectsAsync(string? userId, int? companyId);
+        public Task<IEnumerable<Project>> GetProjectsAsync(int? companyId);
         public Task<IEnumerable<Project>> GetProjectsAsync();
+        public Task<IEnumerable<Project>> GetArchivedProjectsAsync(int? companyId);
         #endregion
 
 

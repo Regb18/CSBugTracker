@@ -3,7 +3,8 @@
 @using CSBugTracker.Services.Interfaces
 
 @inject IBTFileService BTFileService
-
+@inject IBTTicketService BTTicketService
+@inject IBTTicketHistoryService BTHistoryService
 @{
     ViewData["Title"] = "Details";
 }
@@ -103,7 +104,7 @@
                                 <p class="fs-5">There are currently @Model.TicketComments.Count comments</p>
                                 <ul class="right_chat list-unstyled mb-0">
                                     @*Loop to show comments made for the Ticket*@
-                                    @foreach (TicketComment comment in Model.TicketComments)
+                                    @foreach (TicketComment comment in await BTTicketService.GetRecentTicketCommentsAsync(Model.Id))
                                     {
                                         @comment.User!.FullName
                                         @comment.Comment
@@ -150,7 +151,7 @@
                                 <h6>Attachments</h6>
                                 <div class="container">
                                     <div class="row">
-                                        @foreach (TicketAttachment item in Model.TicketAttachments)
+                                        @foreach (TicketAttachment item in await BTTicketService.GetRecentTicketAttachmentsAsync(Model.Id))
                                         {
                                             <div class="col col-sm-2">
                                                 <a asp-action="ShowFile" asp-controller="Tickets" asp-route-Id="@item.Id">
@@ -186,7 +187,7 @@
                         <div class="card-body" style="overflow-y:auto;height:1000px;background-color:antiquewhite">
                             <ul class="right_chat list-unstyled mb-0">
                                 @*Loop to show the history entries for the Ticket*@
-                                @foreach (TicketHistory history in Model.TicketHistory)
+                                @foreach (TicketHistory history in await BTHistoryService.GetRecentTicketHistoryAsync(Model.Id))
                                 {
                                     <li>
                                         <strong>Property:</strong> @history.PropertyName

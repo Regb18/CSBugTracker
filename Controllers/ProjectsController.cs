@@ -180,13 +180,27 @@ namespace CSBugTracker.Controllers
         public async Task<IActionResult> MyProjects()
         {
             string userId = _userManager.GetUserId(User)!;
-            BTUser? btuser = await _projectService.GetMyProjectsAsync(userId);
+            int companyId = User.Identity!.GetCompanyId();
+
+            IEnumerable<Project>? projects = await _projectService.GetMyProjectsAsync(userId, companyId);
 
             // projects based on user/only ones they're in / can only interact with ones they're part of
 
 
-            return View(btuser);
+            return View(projects);
         }
+
+
+        // Get Archived Projects
+        public async Task<IActionResult> ArchivedProjects()
+        {
+            int companyId = User.Identity!.GetCompanyId();
+
+            IEnumerable<Project> projects = await _projectService.GetArchivedProjectsAsync(companyId);
+
+            return View(projects);
+        }
+
 
         // GET: Projects/Details/5
         public async Task<IActionResult> Details(int? id)

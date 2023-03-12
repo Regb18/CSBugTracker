@@ -347,6 +347,11 @@
                                         @if (User.IsInRole("Admin") || User.IsInRole("ProjectManager"))
                                         {
                                             <li>
+                                                <a class="nav-link" asp-controller="Projects" asp-action="ArchivedProjects">
+                                                    Archived Projects
+                                                </a>
+                                            </li>
+                                            <li>
                                                 <a class="nav-link" asp-controller="Tickets" asp-action="UnassignedTickets">
                                                     Unassigned Tickets
                                                 </a>

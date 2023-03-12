@@ -1,4 +1,4 @@
-﻿@model CSBugTracker.Models.BTUser
+﻿@model IEnumerable<CSBugTracker.Models.Project>
 
 @using CSBugTracker.Models.Enums;
 @using CSBugTracker.Services.Interfaces;
@@ -50,7 +50,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (Project item in Model.Projects)
+        @foreach (Project item in Model)
         {
             <tr>
                 <td>

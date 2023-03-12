@@ -331,6 +331,45 @@ namespace CSBugTracker.Services
 				throw;
 			}
 		}
+
+        public async Task<IEnumerable<TicketComment>> GetRecentTicketCommentsAsync(int? ticketId)
+        {
+            try
+            {
+                IEnumerable<TicketComment> comments = await _context.TicketComments
+                                                                          .Where(a => a.TicketId == ticketId)
+                                                                          .Include(a => a.User)
+                                                                          .Include(a => a.Ticket)
+                                                                          .ToListAsync();
+
+
+                return comments.OrderByDescending(a => a.Created);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<TicketAttachment>> GetRecentTicketAttachmentsAsync(int? ticketId)
+        {
+            try
+            {
+                IEnumerable<TicketAttachment> attachments = await _context.TicketAttachments
+                                                                          .Where(a => a.TicketId == ticketId)
+                                                                          .Include(a=>a.User)
+                                                                          .Include(a => a.Ticket)
+                                                                          .ToListAsync();
+
+                return attachments.OrderByDescending(a => a.Created);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         #endregion
 
 
