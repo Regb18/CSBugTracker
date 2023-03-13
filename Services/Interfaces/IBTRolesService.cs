@@ -9,7 +9,7 @@ namespace CSBugTracker.Services.Interfaces
         public Task<List<IdentityRole>> GetRolesAsync();
         public Task<List<IdentityRole>> GetMemberRolesAsync();
         public Task<IEnumerable<string>> GetUserRolesAsync(BTUser user);
-        public Task<List<BTUser>> GetUsersInRoleAsync(string roleName, int companyId);
+        public Task<List<BTUser>> GetUsersInRoleAsync(string roleName, int? companyId);
         public Task<bool> IsUserInRoleAsync(BTUser member, string roleName);
         public Task<bool> RemoveUserFromRoleAsync(BTUser user, string roleName);
         public Task<bool> RemoveUserFromRolesAsync(BTUser user, IEnumerable<string> roleNames);
