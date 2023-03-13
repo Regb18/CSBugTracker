@@ -20,7 +20,7 @@
 				<h2 class="title text-uppercase font-weight-bold m-0"><i class="bx bx-user-circle me-1 text-6 position-relative top-5"></i> Sign In</h2>
 			</div>
 			<div class="card-body">
-				<form action="index.html" method="post">
+				<form id="account" method="post">
 					<div class="form-group mb-3">
 						<label class="form-label" asp-for="Input.Email">Email</label>
 						<div class="input-group">
@@ -66,7 +66,7 @@
 					</div>
 
 					<p class="text-center">Don't have an account yet? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Sign Up!</a></p>
-					<p class="text-center">Don't have an account yet? <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a></p>
+					<p class="text-center">Forgot to Verify? <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a></p>
 				</form>
 			</div>
 		</div>
