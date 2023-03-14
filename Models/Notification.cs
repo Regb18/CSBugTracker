@@ -22,7 +22,7 @@ namespace CSBugTracker.Models
 
         // Foreign Keys
         public int ProjectId { get; set; }
-        public int TicketId { get; set; }
+        public int? TicketId { get; set; }
 
         public int NotificationTypeId { get; set; }
 

@@ -398,6 +398,7 @@ namespace CSBugTracker.Controllers
 					SenderId = userId,
 					RecipientId = projectManager?.Id,
 					NotificationTypeId = (await _context.NotificationTypes.FirstOrDefaultAsync(n => n.Name == nameof(BTNotificationTypes.Ticket)))!.Id,
+					ProjectId = ticket.ProjectId
 				};
 
 				if (projectManager != null)
