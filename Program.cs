@@ -35,9 +35,8 @@ builder.Services.AddScoped<IBTCompanyService, BTCompanyService>();
 builder.Services.AddScoped<IBTTicketHistoryService, BTTicketHistoryService>();
 builder.Services.AddScoped<IBTNotificationService, BTNotificationService>();
 builder.Services.AddScoped<IBTInviteService, BTInviteService>();
-// email
-// notification
-// invite
+
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 builder.Services.AddMvc();
 
