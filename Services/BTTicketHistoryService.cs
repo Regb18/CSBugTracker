@@ -235,5 +235,24 @@ namespace CSBugTracker.Services
             }
         }
 
+        public async Task<IEnumerable<TicketHistory>> GetCompanyTicketHistoryAsync(int? companyId)
+        {
+            try
+            {
+                IEnumerable<TicketHistory> history = await _context.TicketHistories
+                                                                   .Include(a => a.User)
+                                                                   .Include(a => a.Ticket).ThenInclude(t => t!.Project)
+                                                                   .Where(a => a.Ticket!.Project!.CompanyId == companyId)
+                                                                   .ToListAsync();
+
+                return history.OrderByDescending(a => a.Created);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
     }
 }

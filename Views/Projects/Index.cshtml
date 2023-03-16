@@ -4,6 +4,8 @@
 @using CSBugTracker.Services.Interfaces;
 
 @inject IBTFileService _FileService
+@inject IBTProjectService _ProjectService
+
 
 
 @{
@@ -16,29 +18,49 @@
     <a asp-action="Create" class="btn btn-primary">Create A Project</a>
 </p>
 
-<div class="row">
+<div class="row g-4">
     @foreach (Project project in Model)
     {
-        <div class="col-lg-3">
+
+        <div class="col-xxl-4 col-lg-6 col-md-12">
             <section class="card">
                 <header class="card-header bg-primary">
 
-                    <div class="widget-profile-info">
+                    <div class="widget-profile-info h-20">
                         <div class="profile-picture">
-                            <img src="img/!logged-user.jpg">
+                            <a asp-action="Details" asp-route-id="@project.Id">
+                                <img height="100" width="100" src="@_FileService.ConvertByteArrayToFile(project.ImageData!,project.ImageType!,(int)DefaultImage.ProjectImage)">
+                            </a>
                         </div>
                         <div class="profile-info">
-                            <h4 class="name font-weight-semibold mb-0">@project.Name</h4>
+                            <a asp-action="Details" asp-route-id="@project.Id">
+                                <h4 class="name font-weight-semibold mb-0">@project.Name</h4>
+                            </a>
                             <h5 class="role mt-0">Priority: @project.ProjectPriority!.Name</h5>
                             <div class="profile-footer">
-                                <a href="#">Project Manager: </a>
+                                @{
+                                    BTUser? projectManager = await _ProjectService.GetProjectManagerAsync(project.Id);
+
+                                    @if (projectManager != null)
+                                    {
+                                        <a href="#">
+                                            Project Manager: @projectManager?.FullName
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="#">
+                                            Project Manager: Unassigned
+                                        </a>
+                                    }
+                                }
                             </div>
                         </div>
                     </div>
 
                 </header>
                 <div class="card-body">
-                    <p>@project.Description </p>
+                    <p style="max-width: 100%; height: 115px;" class="overflow-y-scroll">@project.Description </p>
                     <hr class="solid short">
                     <div class="row">
                         <div class="col-6">

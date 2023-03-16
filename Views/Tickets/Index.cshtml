@@ -29,48 +29,7 @@
             <h2 class="card-title">Company Tickets</h2>
         </header>
         <div class="card-body">
-            <div class="datatable-header">
-                <div class="row align-items-center mb-3">
-                    <div class="col-12 col-lg-auto mb-3 mb-lg-0">
-                        <a asp-action="Create" class="btn btn-primary btn-md font-weight-semibold btn-py-2 px-4">+ Add Ticket</a>
-                    </div>
-                    <div class="col-8 col-lg-auto ms-auto ml-auto mb-3 mb-lg-0">
-                        <div class="d-flex align-items-lg-center flex-column flex-lg-row">
-                            <label class="ws-nowrap me-3 mb-0">Filter By:</label>
-                            <select class="form-control select-style-1 filter-by" name="filter-by">
-                                <option value="all" selected>All</option>
-                                <option value="1">ID</option>
-                                <option value="2">Campaign Name</option>
-                                <option value="3">Code</option>
-                                <option value="4">Usage/Limit</option>
-                                <option value="5">Expiry Date</option>
-                                <option value="5">Creating Date</option>
-                                <option value="5">Status</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-4 col-lg-auto ps-lg-1 mb-3 mb-lg-0">
-                        <div class="d-flex align-items-lg-center flex-column flex-lg-row">
-                            <label class="ws-nowrap me-3 mb-0">Show:</label>
-                            <select class="form-control select-style-1 results-per-page" name="results-per-page">
-                                <option value="12" selected>12</option>
-                                <option value="24">24</option>
-                                <option value="36">36</option>
-                                <option value="100">100</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-auto ps-lg-1">
-                        <div class="search search-style-1 search-style-1-lg mx-lg-auto">
-                            <div class="input-group">
-                                <input type="text" class="search-term form-control" name="search-term" id="search-term" placeholder="Search Order">
-                                <button class="btn btn-default" type="submit"><i class="bx bx-search"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <table class="table table-striped table-responsive-md table-hover mb-0" role="grid" id="datatable-tickets">
+            <table class="table table-striped table-responsive-lg table-hover mb-0" id="datatable-tickets">
                 <thead>
                     <tr>
                         <th>Title</th>
@@ -91,16 +50,16 @@
                 <tbody>
                     @foreach (Ticket ticket in Model)
                     {
-                        <tr>
+                        <tr class="p-2">
                             <td>
                                 <a asp-action="Details" asp-route-id="@ticket.Id">@ticket.Title</a>
                             </td>
                             <td>@ticket.Description</td>
                             <td>@ticket.Created</td>
                             <td>@ticket.Updated</td>
-                            <td>@ticket.TicketPriority!.Name</td>
+                            <td class="ecommerce-status active">@ticket.TicketPriority!.Name</td>
                             <td>@ticket.TicketType!.Name</td>
-                            <td class="ecommerce-status active">@ticket.TicketStatus!.Name</td>
+                            <td>@ticket.TicketStatus!.Name</td>
                             @if (ticket.DeveloperUserId == null && (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!))))
                             {
                                 <td class="actions-hover actions-fade">
@@ -132,6 +91,83 @@
 @section Scripts
 {
     <script>
-        $('#datatable-tickets').DataTable();
+        //$('#datatable-tickets').DataTable();
+        (function ($) {
+
+            'use strict';
+
+            var datatableInit = function () {
+                var $table = $('#datatable-tickets');
+
+                // format function for row details
+                var fnFormatDetails = function (datatable, tr) {
+                    var data = datatable.fnGetData(tr);
+
+                    return [
+                        '<table class="table table-striped mb-0">',
+                        '<tr class="b-top-0">',
+                        '<td><label class="mb-0">Rendering engine:</label></td>',
+                        '<td>' + data[1] + ' ' + data[4] + '</td>',
+                        '</tr>',
+                        '<tr>',
+                        '<td><label class="mb-0">Link to source:</label></td>',
+                        '<td>Could provide a link here</td>',
+                        '</tr>',
+                        '<tr>',
+                        '<td><label class="mb-0">Extra info:</label></td>',
+                        '<td>And any further details here (images etc)</td>',
+                        '</tr>',
+                        '</table>'
+                    ].join('');
+                };
+
+                // insert the expand/collapse column
+                var th = document.createElement('th');
+                var td = document.createElement('td');
+                td.innerHTML = '<i data-toggle class="far fa-plus-square text-primary h5 m-0" style="cursor: pointer;"></i>';
+                td.className = "text-center";
+
+                $table
+                    .find('thead tr').each(function () {
+                        this.insertBefore(th, this.childNodes[0]);
+                    });
+
+                $table
+                    .find('tbody tr').each(function () {
+                        this.insertBefore(td.cloneNode(true), this.childNodes[0]);
+                    });
+
+                // initialize
+                var datatable = $table.dataTable({
+                    dom: '<"row"<"col-lg-6"l><"col-lg-6"f>><"table-responsive"t>p',
+                    aoColumnDefs: [{
+                        bSortable: false,
+                        aTargets: [0]
+                    }],
+                    aaSorting: [
+                        [1, 'asc']
+                    ]
+                });
+
+                // add a listener
+                $table.on('click', 'i[data-toggle]', function () {
+                    var $this = $(this),
+                        tr = $(this).closest('tr').get(0);
+
+                    if (datatable.fnIsOpen(tr)) {
+                        $this.removeClass('fa-minus-square').addClass('fa-plus-square');
+                        datatable.fnClose(tr);
+                    } else {
+                        $this.removeClass('fa-plus-square').addClass('fa-minus-square');
+                        datatable.fnOpen(tr, fnFormatDetails(datatable, tr), 'details');
+                    }
+                });
+            };
+
+            $(function () {
+                datatableInit();
+            });
+
+        }).apply(this, [jQuery]);
     </script>
 }

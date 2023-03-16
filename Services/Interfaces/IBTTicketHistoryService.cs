@@ -9,5 +9,6 @@ namespace CSBugTracker.Services.Interfaces
         Task<List<TicketHistory>> GetProjectTicketsHistoriesAsync(int? projectId, int? companyId);
         Task<List<TicketHistory>> GetCompanyTicketsHistoriesAsync(int? companyId);
         public Task<IEnumerable<TicketHistory>> GetRecentTicketHistoryAsync(int? ticketId);
+        public Task<IEnumerable<TicketHistory>> GetCompanyTicketHistoryAsync(int? companyId);
     }
 }
