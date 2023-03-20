@@ -236,7 +236,7 @@
                                                     <td>@ticket.Description</td>
                                                     <td>@ticket.Created</td>
                                                     <td>@ticket.Updated</td>
-                                                    <td class="ecommerce-status active">@ticket.TicketPriority!.Name</td>
+                                                    <td>@ticket.TicketPriority!.Name</td>
                                                     <td>@ticket.TicketType!.Name</td>
                                                     <td>@ticket.TicketStatus!.Name</td>
                                                     @if (ticket.DeveloperUserId == null && (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!))))
@@ -250,14 +250,14 @@
                                                         <td>@ticket.DeveloperUser?.FullName</td>
                                                     }
                                                     <td>@ticket.SubmitterUser!.FullName</td>
-                                                    @if (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!)))
-                                                    {
-                                                        <td class="actions-hover actions-fade">
+                                                    <td class="actions-hover actions-fade">
+                                                        @if (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!)))
+                                                        {
                                                             <a asp-action="Edit" asp-route-id="@ticket.Id"><i class="fas fa-pencil-alt"></i></a>
                                                             <a asp-action="Delete" asp-route-id="@ticket.Id" class="delete-row"><i class="far fa-trash-alt"></i></a>
                                                             <a asp-action="AssignDev" asp-route-id="@ticket.Id"><i class="fas fa-code"></i></a>
-                                                        </td>
-                                                    }
+                                                        }
+                                                    </td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -289,11 +289,7 @@
                                     <h4 class="title">Time Left on Project</h4>
                                     <div class="info">
                                         <strong class="amount">1281</strong>
-                                        <span class="text-primary">(14 unread)</span>
                                     </div>
-                                </div>
-                                <div class="summary-footer">
-                                    <a class="text-muted text-uppercase">(view all)</a>
                                 </div>
                             </div>
                         </div>
@@ -304,18 +300,15 @@
                         <div class="widget-summary">
                             <div class="widget-summary-col widget-summary-col-icon">
                                 <div class="summary-icon">
-                                    <i class="fas fa-life-ring"></i>
+                                    <i class="fas fa-tag"></i>
                                 </div>
                             </div>
                             <div class="widget-summary-col">
                                 <div class="summary">
                                     <h4 class="title">Resolved Tickets</h4>
                                     <div class="info">
-                                        <strong class="amount">1281</strong>
+                                        <strong class="amount">@await _projectService.GetResolvedProjectTicketCountAsync(Model.Id, Model.CompanyId)</strong>
                                     </div>
-                                </div>
-                                <div class="summary-footer">
-                                    <a class="text-uppercase">(view all)</a>
                                 </div>
                             </div>
                         </div>
@@ -326,18 +319,15 @@
                         <div class="widget-summary">
                             <div class="widget-summary-col widget-summary-col-icon">
                                 <div class="summary-icon">
-                                    <i class="fas fa-life-ring"></i>
+                                    <i class="fas fa-tag"></i>
                                 </div>
                             </div>
                             <div class="widget-summary-col">
                                 <div class="summary">
                                     <h4 class="title">Development Tickets</h4>
                                     <div class="info">
-                                        <strong class="amount">1281</strong>
+                                        <strong class="amount">@await _projectService.GetDevelopmentProjectTicketCountAsync(Model.Id, Model.CompanyId)</strong>
                                     </div>
-                                </div>
-                                <div class="summary-footer">
-                                    <a class="text-uppercase">(view all)</a>
                                 </div>
                             </div>
                         </div>
@@ -348,18 +338,15 @@
                         <div class="widget-summary">
                             <div class="widget-summary-col widget-summary-col-icon">
                                 <div class="summary-icon">
-                                    <i class="fas fa-life-ring"></i>
+                                    <i class="fas fa-tag"></i>
                                 </div>
                             </div>
                             <div class="widget-summary-col">
                                 <div class="summary">
                                     <h4 class="title">Unassigned Tickets</h4>
                                     <div class="info">
-                                        <strong class="amount">1281</strong>
+                                        <strong class="amount">@await _projectService.GetUnassignedProjectTicketCountAsync(Model.Id, Model.CompanyId)</strong>
                                     </div>
-                                </div>
-                                <div class="summary-footer">
-                                    <a class="text-uppercase">(view all)</a>
                                 </div>
                             </div>
                         </div>
@@ -371,19 +358,15 @@
                         <div class="widget-summary">
                             <div class="widget-summary-col widget-summary-col-icon">
                                 <div class="summary-icon bg-primary">
-                                    <i class="fas fa-life-ring"></i>
+                                    <i class="fas fa-tag"></i>
                                 </div>
                             </div>
                             <div class="widget-summary-col">
                                 <div class="summary">
                                     <h4 class="title">Archived Tickets</h4>
                                     <div class="info">
-                                        <strong class="amount">1281</strong>
-                                        <span class="text-primary">(14 unread)</span>
+                                        <strong class="amount">@await _projectService.GetArchivedProjectTicketCountAsync(Model.Id, Model.CompanyId)</strong>
                                     </div>
-                                </div>
-                                <div class="summary-footer">
-                                    <a class="text-muted text-uppercase">(view all)</a>
                                 </div>
                             </div>
                         </div>

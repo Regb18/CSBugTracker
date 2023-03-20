@@ -56,7 +56,7 @@
                             <td>@ticket.Updated</td>
                             <td>@ticket.TicketPriority!.Name</td>
                             <td>@ticket.TicketType!.Name</td>
-                            <td class="ecommerce-status active">@ticket.TicketStatus!.Name</td>
+                            <td>@ticket.TicketStatus!.Name</td>
                             @if (ticket.DeveloperUserId == null && (User.IsInRole(nameof(BTRoles.Admin)) || User.IsInRole(nameof(BTRoles.ProjectManager))))
                             {
                                 <td class="actions-hover actions-fade">

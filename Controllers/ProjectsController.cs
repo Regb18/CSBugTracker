@@ -18,6 +18,7 @@ using CSBugTracker.Models.Enums;
 
 namespace CSBugTracker.Controllers
 {
+    [Authorize]
     public class ProjectsController : Controller
     {
         private readonly IBTFileService _fileService;

@@ -21,6 +21,7 @@ using Org.BouncyCastle.Bcpg;
 
 namespace CSBugTracker.Controllers
 {
+	[Authorize]
 	public class TicketsController : Controller
 	{
 		private readonly UserManager<BTUser> _userManager;
@@ -165,9 +166,11 @@ namespace CSBugTracker.Controllers
 		{
 			int companyId = User.Identity!.GetCompanyId();
 
-			IEnumerable<Ticket> projectsTickets = await _ticketService.GetTicketsbyProjectsAsync(companyId, id);
+			Project project = await _projectService.GetProjectAsync(id, companyId);
 
-			return View(projectsTickets);
+			//IEnumerable<Ticket> projectsTickets = await _ticketService.GetTicketsbyProjectsAsync(companyId, id);
+
+			return View(project);
 		}
 
 

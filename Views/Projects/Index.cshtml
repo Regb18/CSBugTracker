@@ -38,7 +38,7 @@
                             </a>
                             <h5 class="role mt-0">Priority: @project.ProjectPriority!.Name</h5>
                             <div class="profile-footer">
-                                @((await _ProjectService.GetProjectManagerAsync(project.Id))?.FullName ?? "Unassigned")
+                                Project Manager: @((await _ProjectService.GetProjectManagerAsync(project.Id))?.FullName ?? "Unassigned")
                             </div>
                         </div>
                     </div>

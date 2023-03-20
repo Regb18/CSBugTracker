@@ -1,10 +1,13 @@
-﻿using CSBugTracker.Models;
+﻿using CSBugTracker.Extensions;
+using CSBugTracker.Models;
 using CSBugTracker.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace CSBugTracker.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IBTCompanyService _companyService;
@@ -13,15 +16,18 @@ namespace CSBugTracker.Controllers
             _companyService = companyService;
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
            
             return View();
         }
 
-        public async Task<IActionResult> PortoIndex(int? id)
+        public async Task<IActionResult> PortoIndex()
         {
-            Company? company = await _companyService.GetCompanyInfoAsync(id);
+            int companyId = User.Identity!.GetCompanyId();
+
+            Company? company = await _companyService.GetCompanyInfoAsync(companyId);
 
             return View(company);
         }

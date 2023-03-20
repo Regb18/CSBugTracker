@@ -23,7 +23,6 @@
         <header class="card-header">
             <div class="card-actions">
                 <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
             </div>
 
             <h2 class="card-title">Company Tickets</h2>
@@ -71,14 +70,14 @@
                                 <td>@ticket.DeveloperUser?.FullName</td>
                             }
                             <td>@ticket.SubmitterUser!.FullName</td>
-                            @if (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!)))
-                            {
-                                <td class="actions-hover actions-fade">
+                            <td class="actions-hover actions-fade">
+                                @if (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!)))
+                                {
                                     <a asp-action="Edit" asp-route-id="@ticket.Id"><i class="fas fa-pencil-alt"></i></a>
                                     <a asp-action="Delete" asp-route-id="@ticket.Id" class="delete-row"><i class="far fa-trash-alt"></i></a>
                                     <a asp-action="AssignDev" asp-route-id="@ticket.Id"><i class="fas fa-code"></i></a>
-                                </td>
-                            }
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -89,7 +88,7 @@
 
 
 @section Scripts
-{
+    {
     <script>
         //$('#datatable-tickets').DataTable();
         (function ($) {

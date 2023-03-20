@@ -462,9 +462,71 @@ namespace CSBugTracker.Services
         }
         #endregion
 
+        public async Task<int> GetArchivedProjectTicketCountAsync(int? projectId, int? companyId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Where(t => t.Project!.CompanyId == companyId && t.ProjectId == projectId && (t.Archived == true || t.ArchivedByProject == true))
+                                                             .ToListAsync();
 
+                return tickets.Count();
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
+        }
+        public async Task<int> GetResolvedProjectTicketCountAsync(int? projectId ,int? companyId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Where(t => t.Project!.CompanyId == companyId && t.ProjectId == projectId && t.TicketStatus!.Name == nameof(BTTicketStatuses.Resolved))
+                                                             .ToListAsync();
 
+                return tickets.Count();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<int> GetDevelopmentProjectTicketCountAsync(int? projectId, int? companyId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Where(t => t.Project!.CompanyId == companyId && t.ProjectId == projectId && t.TicketStatus!.Name == nameof(BTTicketStatuses.Development))
+                                                             .ToListAsync();
+
+                return tickets.Count();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<int> GetUnassignedProjectTicketCountAsync(int? projectId, int? companyId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Where(t => t.Project!.CompanyId == companyId && t.ProjectId == projectId && t.DeveloperUserId == null)
+                                                             .ToListAsync();
+
+                return tickets.Count();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }
 

@@ -7,15 +7,15 @@
 
 <h4>Invite</h4>
 <hr />
-<div class="col-lg-6 col-md-12">
+<div class="col-md-12 d-flex justify-content-center">
     <div class="card custom-card">
         <div class="card-body">
             <div>
-                <h6 class="main-content-label mb-1">Company Invite</h6>
-                <p class="text-muted card-sub-title">Invite a new user to join your Bug Tracker company.</p>
+                <h4 class="main-content-label mb-1">Company Invite</h4>
+                <p class="text-light card-sub-title">Invite a new user to join your Bug Tracker company.</p>
             </div>
             <form asp-action="Create">
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center mb-2 mg-b-20">
                     <div class="col-md-4">
                         <label class="mg-b-0">Email</label>
                     </div>
@@ -23,23 +23,23 @@
                         <input type="email" asp-for="InviteeEmail" class="form-control" placeholder="Enter email">
                     </div>
                 </div>
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center mb-2 mg-b-20">
                     <div class="col-md-4">
-                        <label class="mg-b-0">Firstname</label>
+                        <label class="mg-b-0">First name</label>
                     </div>
                     <div class="col-md-8 mg-t-5 mg-md-t-0">
                         <input type="text" asp-for="InviteeFirstName" class="form-control" placeholder="Enter first name">
                     </div>
                 </div>
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center mb-2 mg-b-20">
                     <div class="col-md-4">
-                        <label class="mg-b-0">Lastname</label>
+                        <label class="mg-b-0">Last name</label>
                     </div>
                     <div class="col-md-8 mg-t-5 mg-md-t-0">
                         <input type="text" asp-for="InviteeLastName" class="form-control" placeholder="Enter last name">
                     </div>
                 </div>
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center mb-2 mg-b-20">
                     <div class="col-md-4">
                         <label class="mg-b-0">Select Project</label>
                     </div>
@@ -49,7 +49,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="row row-xs align-items-center mg-b-20">
+                <div class="row row-xs align-items-center mb-2 mg-b-20">
                     <div class="col-md-4">
                         <label class="mg-b-0">Message</label>
                     </div>
@@ -67,9 +67,7 @@
         </div>
     </div>
 </div>
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+
 
 
 @section Scripts {

@@ -15,7 +15,7 @@
     <div classxfont-weighteighteightgetainer-fluid">
         <div class="row gy-2">
             <div class="col-md-12 col">
-                <div class="row col-cols-2 mt-5 bg-secondary">
+                <div class="row col-cols-2 mt-5">
                     <div class="card col m-1 p-2">
                         <div class="card-body">
                             @*Title of Ticket*@
@@ -67,7 +67,7 @@
             </div>
             <div class="col-md-8 col col-cols-2 mt-5 ">
                 <div class="col">
-                    <div class="bg-secondary">
+                    <div class="">
                         <div class="card m-1 p-2">
                             <div class="card-header">
                                 <h2>Comments</h2>
@@ -117,7 +117,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <div class="bg-secondary">
+                    <div class="">
                         <div class="card m-1 p-2">
                             <div class="card-header">
                                 <h2>Attachments</h2>
@@ -184,7 +184,7 @@
                             <h2>History</h2>
                             <hr />
                         </div>
-                        <div class="card-body" style="overflow-y:auto;height:1000px;background-color:antiquewhite">
+                        <div class="card-body" style="overflow-y:auto;height:1000px">
                             <ul class="right_chat list-unstyled mb-0">
                                 @*Loop to show the history entries for the Ticket*@
                                 @foreach (TicketHistory history in await BTHistoryService.GetRecentTicketHistoryAsync(Model.Id))

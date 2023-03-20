@@ -45,6 +45,9 @@ namespace CSBugTracker.Services.Interfaces
         #endregion
 
 
-        // Search Projects //
+        public Task<int> GetArchivedProjectTicketCountAsync(int? projectId, int? companyId);
+        public Task<int> GetResolvedProjectTicketCountAsync(int? projectId, int? companyId);
+        public Task<int> GetDevelopmentProjectTicketCountAsync(int? projectId, int? companyId);
+        public Task<int> GetUnassignedProjectTicketCountAsync(int? projectId, int? companyId);
     }
 }

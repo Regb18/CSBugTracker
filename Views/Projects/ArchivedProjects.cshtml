@@ -22,7 +22,7 @@
 
                     <div class="widget-profile-info">
                         <div class="profile-picture">
-                            <img src="img/!logged-user.jpg">
+                            <img height="100" width="100" src="@_FileService.ConvertByteArrayToFile(project.ImageData!,project.ImageType!,(int)DefaultImage.ProjectImage)">
                         </div>
                         <div class="profile-info">
                             <h4 class="name font-weight-semibold mb-0">@project.Name</h4>

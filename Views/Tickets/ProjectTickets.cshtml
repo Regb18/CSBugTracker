@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CSBugTracker.Models.Ticket>
+﻿@model CSBugTracker.Models.Project
 
 
 @using CSBugTracker.Data;
@@ -26,7 +26,7 @@
                 <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
             </div>
 
-            <h2 class="card-title">Project (Add Project Name) Tickets</h2>
+            <h2 class="card-title">@Model.Name</h2>
         </header>
         <div class="card-body">
             <div class="datatable-header">
@@ -55,7 +55,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (Ticket ticket in Model)
+                    @foreach (Ticket ticket in Model.Tickets)
                     {
                         <tr>
                             <td>
@@ -66,7 +66,7 @@
                             <td>@ticket.Updated</td>
                             <td>@ticket.TicketPriority!.Name</td>
                             <td>@ticket.TicketType!.Name</td>
-                            <td class="ecommerce-status active">@ticket.TicketStatus!.Name</td>
+                            <td>@ticket.TicketStatus!.Name</td>
                             @if (ticket.DeveloperUserId == null && (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!))))
                             {
                                 <td class="actions-hover actions-fade">
