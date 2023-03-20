@@ -38,29 +38,16 @@
                             </a>
                             <h5 class="role mt-0">Priority: @project.ProjectPriority!.Name</h5>
                             <div class="profile-footer">
-                                @{
-                                    BTUser? projectManager = await _ProjectService.GetProjectManagerAsync(project.Id);
-
-                                    @if (projectManager != null)
-                                    {
-                                        <a href="#">
-                                            Project Manager: @projectManager?.FullName
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <a href="#">
-                                            Project Manager: Unassigned
-                                        </a>
-                                    }
-                                }
+                                @((await _ProjectService.GetProjectManagerAsync(project.Id))?.FullName ?? "Unassigned")
                             </div>
                         </div>
                     </div>
 
                 </header>
                 <div class="card-body">
-                    <p style="max-width: 100%; height: 115px;" class="overflow-y-scroll">@project.Description </p>
+                    <div class="scrollable" data-plugin-scrollable style="height: 115px;">
+                        <p class="scrollable-content">@project.Description </p>
+                    </div>
                     <hr class="solid short">
                     <div class="row">
                         <div class="col-6">

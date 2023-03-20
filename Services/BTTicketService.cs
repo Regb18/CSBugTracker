@@ -2,6 +2,8 @@
 using CSBugTracker.Models;
 using CSBugTracker.Models.Enums;
 using CSBugTracker.Services.Interfaces;
+using Microsoft.Build.Evaluation;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace CSBugTracker.Services
@@ -283,6 +285,107 @@ namespace CSBugTracker.Services
         }
 
         #endregion
+
+        #region Get Tickets Developing and Tickets Submitted
+
+        public async Task<int> GetTicketsSubmittedCompanyAsync(string? userId, int? companyId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Include(t => t.TicketPriority)
+                                                             .Include(t => t.TicketStatus)
+                                                             .Include(t => t.TicketType)
+                                                             .Where(t => t.SubmitterUserId == userId && t.Project!.CompanyId == companyId && t.Archived == false && t.ArchivedByProject == false)
+                                                             .ToListAsync();
+                int numberOfTickets = tickets.Count();
+
+                return numberOfTickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<int> GetTicketsDevelopingCompanyAsync(string? userId, int? companyId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Include(t => t.TicketPriority)
+                                                             .Include(t => t.TicketStatus)
+                                                             .Include(t => t.TicketType)
+                                                             .Where(t => t.DeveloperUserId == userId && t.Project!.CompanyId == companyId && t.Archived == false && t.ArchivedByProject == false)
+                                                             .ToListAsync();
+                int numberOfTickets = tickets.Count();
+
+                return numberOfTickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<int> GetTicketsSubmittedProjectAsync(string? userId, int? projectId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Include(t => t.TicketPriority)
+                                                             .Include(t => t.TicketStatus)
+                                                             .Include(t => t.TicketType)
+                                                             .Where(t => t.SubmitterUserId == userId && t.ProjectId == projectId && t.Archived == false && t.ArchivedByProject == false)
+                                                             .ToListAsync();
+                int numberOfTickets = tickets.Count();
+
+                return numberOfTickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<int> GetTicketsDevelopingProjectAsync(string? userId, int? projectId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Include(t => t.TicketPriority)
+                                                             .Include(t => t.TicketStatus)
+                                                             .Include(t => t.TicketType)
+                                                             .Where(t => t.DeveloperUserId == userId && t.ProjectId == projectId && t.Archived == false && t.ArchivedByProject == false)
+                                                             .ToListAsync();
+
+                int numberOfTickets = tickets.Count();
+
+                return numberOfTickets;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+
+        #endregion
+
+
 
 
 

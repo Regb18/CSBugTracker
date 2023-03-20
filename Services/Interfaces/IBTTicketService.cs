@@ -28,9 +28,16 @@ namespace CSBugTracker.Services.Interfaces
         public Task<Ticket> GetTicketAsNoTrackingAsync(int? ticketId, int? companyId);
         #endregion
 
-        // Additional Services
+        #region Get Tickets Developing and Tickets Submitted
+        public Task<int> GetTicketsSubmittedCompanyAsync(string? userId, int? companyId);
+        public Task<int> GetTicketsDevelopingCompanyAsync(string? userId, int? companyId);
+        public Task<int> GetTicketsSubmittedProjectAsync(string? userId, int? projectId);
+        public Task<int> GetTicketsDevelopingProjectAsync(string? userId, int? projectId);
 
-        // Search Tickets
+        #endregion
+
+
+
 
         // Add Ticket Comment
         public Task AddCommentAsync(TicketComment comment);

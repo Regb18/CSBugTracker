@@ -204,16 +204,23 @@ namespace CSBugTracker.Services
             }
         }
 
-        public Task<List<TicketHistory>> GetCompanyTicketsHistoriesAsync(int? companyId)
+        public async Task<IEnumerable<TicketHistory>> GetProjectTicketHistoryAsync(int? projectId, int? companyId)
         {
-            //List<TicketHistory> histories = await _context.TicketHistories.ToList();
-            //return histories;
-            throw new NotImplementedException();
-        }
+            try
+            {
+                IEnumerable<TicketHistory> history = await _context.TicketHistories
+                                                                   .Include(a => a.User)
+                                                                   .Include(a => a.Ticket).ThenInclude(t => t!.Project)
+                                                                   .Where(a => a.Ticket!.ProjectId == projectId && a.Ticket.Project!.CompanyId == companyId)
+                                                                   .ToListAsync();
 
-        public Task<List<TicketHistory>> GetProjectTicketsHistoriesAsync(int? projectId, int? companyId)
-        {
-            throw new NotImplementedException();
+                return history.OrderByDescending(a => a.Created);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<IEnumerable<TicketHistory>> GetRecentTicketHistoryAsync(int? ticketId)
