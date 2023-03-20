@@ -9,10 +9,12 @@ namespace CSBugTracker.Services
     public class BTCompanyService : IBTCompanyService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBTRolesService _rolesService;
 
-        public BTCompanyService(ApplicationDbContext context)
+        public BTCompanyService(ApplicationDbContext context, IBTRolesService rolesService)
         {
             _context = context;
+            _rolesService = rolesService;
         }
 
         public async Task<Company> GetCompanyInfoAsync(int? companyId)
@@ -51,6 +53,30 @@ namespace CSBugTracker.Services
             }
 
 
+        }
+
+        public async Task<BTUser> GetCompanyAdminAsync(int? companyId)
+        {
+            try
+            {
+                Company? company = await _context.Companies.Include(p => p.Members).FirstOrDefaultAsync(p => p.Id == companyId);
+
+                foreach (BTUser member in company!.Members)
+                {
+                    if (await _rolesService.IsUserInRoleAsync(member, nameof(BTRoles.Admin)))
+                    {
+                        return member;
+                    }
+                }
+
+                return null!;
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using CSBugTracker.Extensions;
 
 namespace CSBugTracker.Areas.Identity.Pages.Account
 {
@@ -104,7 +105,8 @@ namespace CSBugTracker.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            returnUrl ??= Url.Content("~/Home/PortoIndex");
+            int companyId = User.Identity.GetCompanyId();
+            returnUrl ??= Url.Content($"~/Home/PortoIndex/{companyId}");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 

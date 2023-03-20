@@ -1,4 +1,5 @@
 ﻿using CSBugTracker.Models;
+using CSBugTracker.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -6,21 +7,23 @@ namespace CSBugTracker.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IBTCompanyService _companyService;
+        public HomeController(IBTCompanyService companyService)
         {
-            _logger = logger;
+            _companyService = companyService;
         }
 
         public IActionResult Index()
         {
+           
             return View();
         }
 
-        public IActionResult PortoIndex()
+        public async Task<IActionResult> PortoIndex(int? id)
         {
-            return View();
+            Company? company = await _companyService.GetCompanyInfoAsync(id);
+
+            return View(company);
         }
 
         public IActionResult Privacy()

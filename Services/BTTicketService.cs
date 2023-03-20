@@ -286,6 +286,7 @@ namespace CSBugTracker.Services
 
         #endregion
 
+
         #region Get Tickets Developing and Tickets Submitted
 
         public async Task<int> GetTicketsSubmittedCompanyAsync(string? userId, int? companyId)
@@ -384,9 +385,6 @@ namespace CSBugTracker.Services
 
 
         #endregion
-
-
-
 
 
         #region Ticket Attachments / Comments
