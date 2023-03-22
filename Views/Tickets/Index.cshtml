@@ -28,7 +28,7 @@
             <h2 class="card-title">Company Tickets</h2>
         </header>
         <div class="card-body">
-            <table class="table table-striped table-responsive-lg table-hover mb-0" id="datatable-tickets">
+            <table class="table table-striped table-responsive table-hover mb-0" id="datatable-tickets">
                 <thead>
                     <tr>
                         <th>Title</th>
@@ -56,7 +56,7 @@
                             <td>@ticket.Description</td>
                             <td>@ticket.Created</td>
                             <td>@ticket.Updated</td>
-                            <td class="ecommerce-status active">@ticket.TicketPriority!.Name</td>
+                            <td>@ticket.TicketPriority!.Name</td>
                             <td>@ticket.TicketType!.Name</td>
                             <td>@ticket.TicketStatus!.Name</td>
                             @if (ticket.DeveloperUserId == null && (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!))))

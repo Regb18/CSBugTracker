@@ -317,6 +317,7 @@ namespace CSBugTracker.Controllers
         }
 
         // GET: Projects/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -333,20 +334,6 @@ namespace CSBugTracker.Controllers
                 return NotFound();
             }
 
-
-            List<BTUser> members = new List<BTUser>();
-
-            foreach (BTUser user in await _companyService.GetMembersAsync(companyId))
-            {
-                if (await _userManager.IsInRoleAsync(user, "Developer") || await _userManager.IsInRoleAsync(user, "Submitter"))
-                {
-                    members.Add(user);
-                }
-            }
-
-            IEnumerable<string> currentMembers = members.Select(c => c.Id);
-
-            ViewData["Members"] = new MultiSelectList(members, "Id", "FullName", currentMembers);
             ViewData["ProjectPriorityId"] = new SelectList(await _projectService.GetProjectPriosAsync(), "Id", "Name", project.ProjectPriorityId);
             return View(project);
         }
@@ -356,7 +343,7 @@ namespace CSBugTracker.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Created,StartDate,EndDate,ImageFile,ImageData,ImageType,Archived,CompanyId,ProjectPriorityId")] Project project, IEnumerable<string> selected)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Created,StartDate,EndDate,ImageFile,ImageData,ImageType,Archived,CompanyId,ProjectPriorityId")] Project project)
         {
             if (id != project.Id)
             {
@@ -389,14 +376,6 @@ namespace CSBugTracker.Controllers
 
                     // Add Service
                     await _projectService.UpdateProjectAsync(project);
-
-
-                    // Service Call
-                    await _projectService.RemoveAllProjectMembersAsync(project.Id, project.CompanyId);
-
-                    await _projectService.AddProjectToMembersAsync(selected, project.Id, project.CompanyId);
-
-
 
                 }
                 catch (DbUpdateConcurrencyException)

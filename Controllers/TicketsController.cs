@@ -66,9 +66,9 @@ namespace CSBugTracker.Controllers
 				return NotFound();
 			}
 
-			//int companyId = User.Identity!.GetCompanyId();
+			int companyId = User.Identity!.GetCompanyId();
 			//IEnumerable<BTUser> developers = await _rolesService.GetUsersInRoleAsync(nameof(BTRoles.Developer), companyId);
-			Ticket? ticket = await _ticketService.GetTicketAsync(id);
+			Ticket? ticket = await _ticketService.GetTicketAsync(id, companyId);
 
 			List<BTUser> developers = await _projectService.GetProjectDevelopersAsync(ticket.ProjectId);
 
@@ -76,7 +76,7 @@ namespace CSBugTracker.Controllers
 
 			AddDevToTicketViewModel viewModel = new()
 			{
-				Ticket = await _ticketService.GetTicketAsync(id),
+				Ticket = await _ticketService.GetTicketAsync(id, companyId),
 				DevList = new SelectList(developers, "Id", "FullName", currentDev?.Id),
 				DevId = currentDev?.Id
 			};
@@ -100,7 +100,7 @@ namespace CSBugTracker.Controllers
 
 				try
 				{
-					await _ticketService.AddTicketDeveloperAsync(viewModel.DevId, viewModel.Ticket?.Id);
+					await _ticketService.AddTicketDeveloperAsync(viewModel.DevId, viewModel.Ticket?.Id, companyId);
 				}
 				catch (Exception)
 				{
@@ -238,7 +238,9 @@ namespace CSBugTracker.Controllers
 				return NotFound();
 			}
 
-			Ticket? ticket = await _ticketService.GetTicketAsync(id);
+            int companyId = User.Identity!.GetCompanyId();
+
+            Ticket? ticket = await _ticketService.GetTicketAsync(id, companyId);
 
 			if (ticket == null)
 			{
@@ -431,7 +433,9 @@ namespace CSBugTracker.Controllers
 				return NotFound();
 			}
 
-			Ticket? ticket = await _ticketService.GetTicketAsync(id);
+			int companyId = User.Identity!.GetCompanyId();
+
+			Ticket? ticket = await _ticketService.GetTicketAsync(id, companyId);
 
 			if (ticket == null)
 			{
@@ -440,7 +444,6 @@ namespace CSBugTracker.Controllers
 
 
 
-			int companyId = User.Identity!.GetCompanyId();
 
 			List<BTUser> members = new List<BTUser>();
 
@@ -555,7 +558,9 @@ namespace CSBugTracker.Controllers
 				return NotFound();
 			}
 
-			Ticket? ticket = await _ticketService.GetTicketAsync(id);
+            int companyId = User.Identity!.GetCompanyId();
+
+            Ticket? ticket = await _ticketService.GetTicketAsync(id, companyId);
 
 			if (ticket == null)
 			{
@@ -575,7 +580,9 @@ namespace CSBugTracker.Controllers
 				return Problem("Entity set 'ApplicationDbContext.Tickets'  is null.");
 			}
 
-			Ticket? ticket = await _ticketService.GetTicketAsync(id);
+            int companyId = User.Identity!.GetCompanyId();
+
+            Ticket? ticket = await _ticketService.GetTicketAsync(id, companyId);
 
 
 			try

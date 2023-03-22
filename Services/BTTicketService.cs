@@ -19,7 +19,7 @@ namespace CSBugTracker.Services
 
 
         #region CRUD Services
-        public async Task<Ticket> GetTicketAsync(int? ticketId)
+        public async Task<Ticket> GetTicketAsync(int? ticketId, int? companyId)
 		{
 			try
 			{
@@ -33,7 +33,7 @@ namespace CSBugTracker.Services
 											   .Include(t => t.TicketComments).ThenInclude(c => c.User)
 											   .Include(t => t.TicketAttachments).ThenInclude(c => c.User)
                                                .Include(t => t.TicketHistory)
-											   .FirstOrDefaultAsync(m => m.Id == ticketId);
+											   .FirstOrDefaultAsync(t => t.Id == ticketId && t.Project!.CompanyId == companyId);
 
 				return ticket!;
 			}
@@ -553,11 +553,11 @@ namespace CSBugTracker.Services
             }
         }
 
-        public async Task<bool> AddTicketDeveloperAsync(string? userId, int? ticketId)
+        public async Task<bool> AddTicketDeveloperAsync(string? userId, int? ticketId, int? companyId)
         {
             try
             {
-                Ticket ticket = await GetTicketAsync(ticketId);
+                Ticket ticket = await GetTicketAsync(ticketId, companyId);
 
                 BTUser? selectedDev = await _context.Users.FindAsync(userId);
 

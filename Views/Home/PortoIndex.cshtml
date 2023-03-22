@@ -91,7 +91,7 @@
                                         color: "#734ba9"
                                     }];
 
-                                    // See: js/examples/examples.dashboard.js for more settings.
+                                                                        // See: js/examples/examples.dashboard.js for more settings.
 
                                 </script>
                             </div>
@@ -128,20 +128,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(Project project in Model.Projects)
+                            @{
+                                int num = 0;
+                            }
+                            @foreach (Project project in Model.Projects)
                             {
-                            <tr>
-                                <td></td>
-                                <td>@project.Name</td>
-                                <td><span class="badge badge-default">@project.ProjectPriority!.Name</span></td>
-                                <td>
-                                    <div class="progress progress-sm progress-half-rounded m-0 mt-1 light">
-                                        <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
-                                            100%
+                                {
+                                    num++;
+                                }
+                                <tr>
+                                    <td>@num</td>
+                                    <td>@project.Name</td>
+                                    <td><span class="badge badge-default">@project.ProjectPriority!.Name</span></td>
+                                    <td>
+
+                                        @* Razor code block *@
+                                        @{
+                                            var start = project.StartDate!.Value!;
+                                            var end = project.EndDate!.Value!;
+                                            var today = DateTime.Now;
+                                            var percent = today >= end ? 100 : today < start ? 0 : Math.Round((today.Subtract(start)) / (end.Subtract(start)) * 100);
+                                        }
+                                        <div class="progress progress-sm progress-half-rounded m-0 mt-1 light">
+                                            <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: @percent%;">
+                                                @percent%
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>
@@ -155,9 +169,6 @@
     <div class="col-lg-6 col-xl-3">
         <section class="card card-transparent">
             <header class="card-header">
-                <div class="card-actions">
-                    <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                </div>
 
                 <h2 class="card-title">Company Members</h2>
             </header>
@@ -213,64 +224,72 @@
     <div class="col-lg-6 col-xl-3">
         <section class="card card-transparent">
             <header class="card-header">
-                <div class="card-actions">
-                    <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                </div>
 
                 <h2 class="card-title">Company Stats</h2>
             </header>
             <div class="card-body">
                 <section class="card">
                     <div class="card-body">
-                        <div class="small-chart float-end" id="sparklineBarDash"></div>
-                        <script type="text/javascript">
-                            var sparklineBarDashData = [5, 6, 7, 2, 0, 4, 2, 4, 2, 0, 4, 2, 4, 2, 0, 4];
-                        </script>
-                        <div class="h4 font-weight-bold mb-0">@Model.Members.Count</div>
+                        <span>
+                            <div class="float-end widget-summary-col widget-summary-col-icon">
+                                <div class="summary-icon">
+                                    <i class="fs-1 fas fa-users text-light"></i>
+                                </div>
+                            </div>
+                            <div class="h4 font-weight-bold mb-0">@Model.Members.Count</div>
+                        </span>
                         <p class="text-3 text-light mb-0">Members</p>
                     </div>
                 </section>
                 <section class="card">
                     <div class="card-body">
-                        <div class="circular-bar circular-bar-xs m-0 mt-1 me-4 mb-0 float-end">
-                            <div class="circular-bar-chart" data-percent="45" data-plugin-options='{ "barColor": "#2baab1", "delay": 300, "size": 50, "lineWidth": 4 }'>
-                                <strong>Average</strong>
-                                <label><span class="percent">45</span>%</label>
+                        <span>
+                            <div class="me-2 float-end widget-summary-col widget-summary-col-icon">
+                                <div class="summary-icon">
+                                    <i class="fs-1 fas fa-clipboard-list text-info"></i>
+                                </div>
                             </div>
-                        </div>
-                        <div class="h4 font-weight-bold mb-0">@await _companyService.GetCompanyProjectCountAsync(Model.Id)</div>
+                            <div class="h4 font-weight-bold mb-0">@await _companyService.GetCompanyProjectCountAsync(Model.Id)</div>
+                        </span>
                         <p class="text-3 text-light mb-0">Active Projects</p>
                     </div>
                 </section>
                 <section class="card">
                     <div class="card-body">
-                        <div class="small-chart float-end" id="sparklineLineDash"></div>
-                        <script type="text/javascript">
-                            var sparklineLineDashData = [15, 16, 17, 19, 10, 15, 13, 12, 12, 14, 16, 17];
-                        </script>
-                        <div class="h4 font-weight-bold mb-0">@await _companyService.GetCompanyTicketCountAsync(Model.Id)</div>
+                        <span>
+                            <div class="float-end widget-summary-col widget-summary-col-icon">
+                                <div class="summary-icon">
+                                    <i class="fs-1 fas fa-tag text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="h4 font-weight-bold mb-0">@await _companyService.GetCompanyTicketCountAsync(Model.Id)</div>
+                        </span>
                         <p class="text-3 text-light mb-0">Active Tickets</p>
                     </div>
                 </section>
                 <section class="card">
                     <div class="card-body">
-                        <div class="small-chart float-end" id="sparklineBarDash"></div>
-                        <script type="text/javascript">
-                            var sparklineBarDashData = [5, 6, 7, 2, 0, 4, 2, 4, 2, 0, 4, 2, 4, 2, 0, 4];
-                        </script>
-                        <div class="h4 font-weight-bold mb-0">@await _companyService.GetResolvedTicketCountAsync(Model.Id)</div>
+                        <span>
+                            <div class="float-end widget-summary-col widget-summary-col-icon">
+                                <div class="summary-icon">
+                                    <i class="fs-1 fas fa-tag text-success"></i>
+                                </div>
+                            </div>
+                            <div class="h4 font-weight-bold mb-0">@await _companyService.GetResolvedTicketCountAsync(Model.Id)</div>
+                        </span>
                         <p class="text-3 text-light mb-0">Resolved Tickets</p>
                     </div>
                 </section>
                 <section class="card">
                     <div class="card-body">
-                        <div class="circular-bar circular-bar-xs m-0 mt-1 me-4 mb-0 float-end">
-                            <div class="circular-bar-chart" data-percent="45" data-plugin-options='{ "barColor": "#2baab1", "delay": 300, "size": 50, "lineWidth": 4 }'>
-                                <strong>Average</strong>
-                                <label><span class="percent">45</span>%</label>
+                        <span>
+                            <div class="float-end widget-summary-col widget-summary-col-icon">
+                                <div class="summary-icon">
+                                    <i class="fs-1 fas fa-tag"></i>
+                                </div>
                             </div>
-                        </div>
-                        <div class="h4 font-weight-bold mb-0">@await _companyService.GetArchivedTicketCountAsync(Model.Id)</div>
+                            <div class="h4 font-weight-bold mb-0">@await _companyService.GetArchivedTicketCountAsync(Model.Id)</div>
+                        </span>
                         <p class="text-3 text-light mb-0">Archived Tickets</p>
                     </div>
                 </section>
@@ -280,9 +299,6 @@
     <div class="col-lg-12 col-xl-6">
         <section class="card">
             <header class="card-header card-header-transparent">
-                <div class="card-actions">
-                    <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                </div>
 
                 <h2 class="card-title">Company Activity</h2>
             </header>

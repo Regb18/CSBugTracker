@@ -11,7 +11,7 @@ namespace CSBugTracker.Services.Interfaces
 
         public Task DeleteTicketAsync(Ticket ticket);
 
-        public Task<Ticket> GetTicketAsync(int? ticketId);
+        public Task<Ticket> GetTicketAsync(int? ticketId, int? companyId);
 
         #endregion
 
@@ -62,7 +62,7 @@ namespace CSBugTracker.Services.Interfaces
 
         // Ticket Developer
         public Task<BTUser> GetTicketDeveloperAsync(int? ticketId);
-        public Task<bool> AddTicketDeveloperAsync(string? userId, int? ticketId);
+        public Task<bool> AddTicketDeveloperAsync(string? userId, int? ticketId, int? companyId);
         //public Task RemoveTicketDeveloperAsync(int? ticketId);
 
     }
