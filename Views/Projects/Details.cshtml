@@ -201,14 +201,14 @@
                                         <thead>
                                             <tr>
                                                 <th>Title</th>
-                                                <th>Description</th>
-                                                <th>Created</th>
-                                                <th>Updated</th>
+                                                @*<th>Description</th>*@
+                                                <th class="hidden">Created</th>
+                                                <th class="hidden">Updated</th>
                                                 <th>Priority</th>
                                                 <th>Type</th>
                                                 <th>Status</th>
-                                                <th>Developer</th>
-                                                <th>Submitter</th>
+                                                <th class="hidden">Developer</th>
+                                                <th class="hidden">Submitter</th>
                                                 @if (User.IsInRole(nameof(BTRoles.Admin)) || User.IsInRole(nameof(BTRoles.ProjectManager)))
                                                 {
                                                     <th>Actions</th>
@@ -220,25 +220,25 @@
                                             {
                                                 <tr class="p-2">
                                                     <td>
-                                                        <a asp-action="Details" asp-route-id="@ticket.Id">@ticket.Title</a>
+                                                        <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id">@ticket.Title</a>
                                                     </td>
-                                                    <td>@ticket.Description</td>
-                                                    <td>@ticket.Created</td>
-                                                    <td>@ticket.Updated</td>
+                                                    @*<td>@ticket.Description</td>*@
+                                                    <td class="hidden">@ticket.Created</td>
+                                                    <td class="hidden">@ticket.Updated</td>
                                                     <td>@ticket.TicketPriority!.Name</td>
                                                     <td>@ticket.TicketType!.Name</td>
                                                     <td>@ticket.TicketStatus!.Name</td>
                                                     @if (ticket.DeveloperUserId == null && (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!))))
                                                     {
-                                                        <td class="actions-hover actions-fade">
-                                                            <a asp-action="AssignDev" asp-route-id="@ticket.Id">Assign Dev <i class="fas fa-code"></i></a>
+                                                        <td class="hidden actions-hover actions-fade">
+                                                            <a asp-controller="Tickets" asp-action="AssignDev" asp-route-id="@ticket.Id">Assign Dev <i class="fas fa-code"></i></a>
                                                         </td>
                                                     }
                                                     else
                                                     {
-                                                        <td>@ticket.DeveloperUser?.FullName</td>
+                                                        <td class="hidden">@ticket.DeveloperUser?.FullName</td>
                                                     }
-                                                    <td>@ticket.SubmitterUser!.FullName</td>
+                                                    <td class="hidden">@ticket.SubmitterUser!.FullName</td>
                                                     <td class="actions-hover actions-fade">
                                                         @if (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && ticket.Project!.Members.Contains(btUser!)))
                                                         {
@@ -389,16 +389,16 @@
                     return [
                         '<table class="table table-striped mb-0">',
                         '<tr class="b-top-0">',
-                        '<td><label class="mb-0">Rendering engine:</label></td>',
-                        '<td>' + data[1] + ' ' + data[4] + '</td>',
+                        '<td><label class="mb-0">Created:</label></td>',
+                        '<td>' + data[2] + '</td>',
                         '</tr>',
                         '<tr>',
-                        '<td><label class="mb-0">Link to source:</label></td>',
-                        '<td>Could provide a link here</td>',
+                        '<td><label class="mb-0">Developer:</label></td>',
+                        '<td>' + data[7] + '</td>',
                         '</tr>',
                         '<tr>',
-                        '<td><label class="mb-0">Extra info:</label></td>',
-                        '<td>And any further details here (images etc)</td>',
+                        '<td><label class="mb-0">Submitter:</label></td>',
+                        '<td>' + data[8] + '</td>',
                         '</tr>',
                         '</table>'
                     ].join('');
