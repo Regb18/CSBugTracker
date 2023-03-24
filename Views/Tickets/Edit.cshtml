@@ -1,99 +1,262 @@
 ﻿@model CSBugTracker.Models.Ticket
 
+@using CSBugTracker.Models.Enums
+@using CSBugTracker.Services.Interfaces
+@inject IBTFileService _fileService
+@inject IBTTicketService _ticketService
+@inject IBTTicketHistoryService _historyService
+
 @{
     ViewData["Title"] = "Edit";
 }
 
 <h1>Edit</h1>
-
-<h4>Ticket</h4>
 <hr />
-<div class="col-lg-6">
-    <form asp-action="Edit" class="form-horizontal">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="Id" />
-        <input type="hidden" asp-for="Created" />
-        <input type="hidden" asp-for="Updated" />
-        <input type="hidden" asp-for="Archived" />
-        <input type="hidden" asp-for="ArchivedByProject" />
-        <input type="hidden" asp-for="ProjectId" />
-        <input type="hidden" asp-for="SubmitterUserId" />
-        <input type="hidden" asp-for="DeveloperUserId" />
-        <section class="card">
-            <header class="card-header">
-                <div class="card-actions">
-                    <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                    <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
-                </div>
 
-                <h2 class="card-title">Edit a Ticket</h2>
-@*                <p class="card-subtitle">
-                    Add a ticket to this project.
-                </p>*@
-            </header>
-            <div class="card-body">
-                <div class="form-group row pb-3">
-                    <label class="col-sm-3 control-label text-sm-end pt-2" asp-for="Title"></label>
-                    <div class="col-sm-9">
-                        <input asp-for="Title" class="form-control" />
-                    </div>
+<!-- start: page -->
+
+
+<form asp-action="Edit" class="m-0">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Created" />
+    <input type="hidden" asp-for="Updated" />
+    <input type="hidden" asp-for="Archived" />
+    <input type="hidden" asp-for="ArchivedByProject" />
+    <input type="hidden" asp-for="ProjectId" />
+    <input type="hidden" asp-for="SubmitterUserId" />
+    <input type="hidden" asp-for="DeveloperUserId" />
+    <div class="form-group row align-items-center mb-3">
+        <h2>Ticket Name</h2>
+        <div class="col-lg-7 col-xl-4">
+            <input asp-for="Title" type="text" class="form-control form-control-modern" required />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-3">
+
+            <h4 class="mb-3 mt-0 font-weight-semibold text-dark">Ticket Details</h4>
+            <section class="card card-transparent">
+
+                <div class="card-body">
+                    <section class="card mb-4">
+                        <div class="card-body bg-tertiary">
+                            <div class="widget-summary">
+                                <div class="widget-summary-col widget-summary-col-icon">
+                                    <div class="summary-icon">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-form-label" asp-for="TicketTypeId">Type</label>
+                                    <select asp-for="TicketTypeId" class="form-control" asp-items="ViewBag.TicketTypeId"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="card mb-4">
+                        <div class="card-body bg-info">
+                            <div class="widget-summary">
+                                <div class="widget-summary-col widget-summary-col-icon">
+                                    <div class="summary-icon">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-form-label" asp-for="TicketPriorityId">Priority</label>
+                                    <select asp-for="TicketPriorityId" class="form-control" asp-items="ViewBag.TicketPriorityId"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="card mb-4">
+                        <div class="card-body bg-primary">
+                            <div class="widget-summary">
+                                <div class="widget-summary-col widget-summary-col-icon">
+                                    <div class="summary-icon">
+                                        <i class="fas fa-tag"></i>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-form-label" asp-for="TicketStatusId">Status</label>
+                                    <select asp-for="TicketStatusId" class="form-control" asp-items="ViewBag.TicketStatusId"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-                <div class="form-group row pb-3">
-                    <label class="col-sm-3 control-label text-sm-end pt-2" asp-for="Description"></label>
-                    <div class="col-sm-9">
-                        <textarea asp-for="Description" rows="2" class="form-control" placeholder=""></textarea>
-                    </div>
-                    <div class="col-sm-9">
-                    </div>
-                </div>
-                <div class="row form-group pb-3">
-                    <div class="col-lg-4">
-                        <div class="form-group">
-                            <label class="col-form-label" asp-for="TicketTypeId">Type</label>
-                            <select asp-for="TicketTypeId" class="form-control" asp-items="ViewBag.TicketTypeId"></select>
+            </section>
+
+        </div>
+        <div class="col-lg-7 col-xl-5 mb-4 mb-xl-0">
+            <h4 class="mb-3 mt-0 font-weight-semibold text-dark">Ticket Description</h4>
+
+            <div class="tabs">
+                <div class="tab-content">
+                    <div class="row">
+                        <div class="col">
+                            <section class="card">
+                                <div class="form-group card-body">
+                                    <div class="form-group row mb-3 p-2">
+                                        <div class="ck-editor__editable_inline form-group">
+                                            <textarea asp-for="Description" class="editor form-control"></textarea>
+                                            <span asp-validation-for="Description" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row action-buttons">
+                                        <div class="col-12 col-md-auto">
+                                            <button type="submit"
+                                                    class="submit-button btn btn-primary btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1"
+                                                    data-loading-text="Loading...">
+                                                <i class="bx bx-save text-4 me-2"></i> Save Ticket
+                                            </button>
+                                        </div>
+                                        <div class="col-12 col-md-auto px-md-0 mt-3 mt-md-0">
+                                            <a asp-action="Index" class="cancel-button btn btn-light btn-px-4 py-3 border font-weight-semibold text-color-dark text-3">Cancel</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="form-group">
-                            <label class="col-form-label" asp-for="TicketPriorityId">Priority</label>
-                            <select asp-for="TicketPriorityId" class="form-control" asp-items="ViewBag.TicketPriorityId"></select>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="form-group">
-                            <label class="col-form-label" asp-for="TicketStatusId">Status</label>
-                            <select asp-for="TicketStatusId" class="form-control" asp-items="ViewBag.TicketStatusId"></select>
-                        </div>
-                    </div>
                 </div>
-@*                <div class="form-group row pb-2">
-                    <label class="col-sm-3 control-label text-sm-end pt-2" asp-for="DeveloperUserId">Developer</label>
-                    <div class="col-sm-9">
-                        <select asp-for="DeveloperUserId" class="form-control" asp-items="ViewBag.DeveloperUserId" title="Please select a developer">
-                            <option></option>
-                        </select>
-                    </div>
-                </div>*@
             </div>
-            <footer class="card-footer">
-                <div class="row justify-content-end">
-                    <div class="col-sm-9">
-                        <button class="btn btn-primary me-2">Submit</button>
-                        <button type="reset" class="btn btn-default me-2">Reset</button>
-                        <a class="btn btn-warning" asp-action="Index">Back to List</a>
+        </div>
+        <div class="col-lg-5 col-xl-4">
+
+            <div class="tabs">
+                <ul class="nav nav-tabs tabs-primary">
+                    <li class="nav-item active">
+                        <button class="nav-link" data-bs-target="#edit" data-bs-toggle="tab">Comments</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-target="#attachments" data-bs-toggle="tab">Attachments</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" data-bs-target="#overview" data-bs-toggle="tab">History</button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div id="overview" class="tab-pane">
+
+                        <div class="p-3">
+
+                            <div class="timeline timeline-simple mt-3 mb-3">
+                                <div class="scrollable colored-slider tm-body" data-plugin-scrollable
+                                     style="height: 635px;">
+                                    <ol class="scrollable-content tm-items me-5">
+                                        @foreach (TicketHistory history in await _historyService.GetRecentTicketHistoryAsync(Model.Id))
+                                        {
+                                            <li>
+                                                <div class="tm-box">
+                                                    <p class="text-muted mb-0">@history.Created</p>
+                                                    @if (history.Description == "New Ticket Created")
+                                                    {
+                                                        <p class="mb-3">
+                                                            Ticket Created<br>
+                                                        </p>
+                                                    }
+                                                    else
+                                                    {
+                                                        <p>
+                                                            <strong>Property:</strong> @history.PropertyName<br>
+                                                            <strong>Description:</strong> @history.Description
+                                                        </p>
+                                                    }
+
+                                                </div>
+                                            </li>
+                                        }
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="edit" class="tab-pane active">
+                        <div class="p-3">
+
+                            <div class="timeline timeline-simple mt-3 mb-3">
+                                <div class="scrollable colored-slider tm-body" data-plugin-scrollable style="height: 450px;">
+                                    <ol class="scrollable-content tm-items me-5">
+                                        <p class="fs-5 mb-3">There are currently @Model.TicketComments.Count comments</p>
+                                        @foreach (TicketComment comment in await _ticketService.GetRecentTicketCommentsAsync(Model.Id))
+                                        {
+                                            <li>
+                                                <div class="tm-box">
+                                                    <p class="text-muted mb-0">@comment.Created</p>
+                                                    <h5><strong>Author:</strong> @comment.User!.FullName</h5>
+                                                    <p class="fs-6 text-light">
+                                                        <strong>Comment:</strong> @comment.Comment <br>
+                                                    </p>
+
+                                                </div>
+                                            </li>
+                                        }
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="attachments" class="tab-pane">
+                        <div class="scrollable colored-slider" data-plugin-scrollable
+                             style="height: 700px;">
+                            <div class="scrollable-content col">
+                                <div class="card-body mb-3 p-3">
+
+                                    @* Ticket attachments part 2 here *@
+                                    <hr />
+                                    <h6>Attachments</h6>
+                                    <div class="container">
+                                        <div class="row">
+                                            @foreach (TicketAttachment item in await _ticketService.GetRecentTicketAttachmentsAsync(Model.Id))
+                                            {
+                                                <div class="col col-sm-2">
+                                                    <a asp-action="ShowFile" asp-controller="Tickets" asp-route-Id="@item.Id">
+                                                        <div class="icon">
+                                                            <img src="@_fileService.GetFileIcon(item.FileName!)" style="height:50px;width:50px" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="@item.FileName" />
+                                                        </div>
+                                                    </a>
+                                                    <div style="font-size:x-small">
+                                                        <div class="file-name">
+                                                            <strong>@item.Description</strong>
+                                                        </div>
+                                                        <small>Size: @_fileService.FormatFileSize(item.FileData!.Length) </small>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </footer>
-        </section>
-    </form>
-</div>
+            </div>
+        </div>
 
-<div>
-    
-</div>
-
+    </div>
+</form>
+<!-- end: page -->
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script src="~/ckeditor5/build/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('.editor'), {
+                licenseKey: '',
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error('Oops, something went wrong!');
+                console.error('Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:');
+                console.warn('Build id: xx09iayzufkn-lkt434h3lx2z');
+                console.error(error);
+            });
+    </script>
 }

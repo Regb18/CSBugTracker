@@ -20,8 +20,8 @@
             <div class="progress">
                 @* Razor code block *@
                 @{
-                    var start = Model.Project.StartDate!.Value!;
-                    var end = Model.Project.EndDate!.Value!;
+                    var start = Model.Project!.StartDate!.Value!;
+                    var end = Model.Project!.EndDate!.Value!;
                     var today = DateTime.Now;
                     var percent = today >= end ? 100 : today < start ? 0 : Math.Round((today.Subtract(start)) / (end.Subtract(start)) * 100);
                 }
@@ -110,14 +110,14 @@
                                 <img class="rounded-circle" src="@_fileService.ConvertByteArrayToFile(@Model.DeveloperUser?.ImageData!,@Model.DeveloperUser?.ImageType!,(int)DefaultImage.BTUserImage)" data-lock-picture="@_fileService.ConvertByteArrayToFile(@Model.DeveloperUser?.ImageData!,@Model.DeveloperUser?.ImageType!,(int)DefaultImage.BTUserImage)" />
                             </div>
                             <div class="profile-info">
-                                    @if(Model.DeveloperUserId == null)
-                                    {
-                                        <h4 class="role">Unassigned</h4>
-                                    } 
-                                    else 
-                                    {
-                                        <h4 class="name font-weight-semibold">@Model.DeveloperUser?.FullName</h4>
-                                    }
+                                @if (Model.DeveloperUserId == null)
+                                {
+                                    <h4 class="role">Unassigned</h4>
+                                }
+                                else
+                                {
+                                    <h4 class="name font-weight-semibold">@Model.DeveloperUser?.FullName</h4>
+                                }
                                 <h5 class="role">Developer</h5>
                                 <div class="profile-footer">
                                 </div>
@@ -153,7 +153,9 @@
                     <div class="col">
                         <section class="card">
                             <div class="card-body">
-                                @Model.Description
+                                <p class="fs-5">
+                                    @Html.Raw(@Model.Description)
+                                </p>
                             </div>
                         </section>
                     </div>
@@ -186,25 +188,25 @@
                                 <ol class="scrollable-content tm-items me-5">
                                     @foreach (TicketHistory history in await _historyService.GetRecentTicketHistoryAsync(Model.Id))
                                     {
-                                                    <li>
-                                                        <div class="tm-box">
-                                                            <p class="text-muted mb-0">@history.Created</p>
+                                        <li>
+                                            <div class="tm-box">
+                                                <p class="text-muted mb-0">@history.Created</p>
                                                 @if (history.Description == "New Ticket Created")
                                                 {
-                                                             <p class="mb-3">
-                                                                 Ticket Created<br>
-                                                             </p>
+                                                    <p class="mb-3">
+                                                        Ticket Created<br>
+                                                    </p>
                                                 }
                                                 else
                                                 {
-                                                             <p>
-                                                                 <strong>Property:</strong> @history.PropertyName<br>
-                                                                 <strong>Description:</strong> @history.Description
-                                                             </p>
+                                                    <p>
+                                                        <strong>Property:</strong> @history.PropertyName<br>
+                                                        <strong>Description:</strong> @history.Description
+                                                    </p>
                                                 }
 
-                                                        </div>
-                                                    </li>
+                                            </div>
+                                        </li>
                                     }
                                 </ol>
                             </div>
@@ -216,42 +218,42 @@
                     <div class="p-3">
 
                         <div class="timeline timeline-simple mt-3 mb-3">
-                                <!-- Start Comment Respond  -->
-                                <div class="comment-respond mb-3">
-                                    <h4 class="title">Post a comment</h4>
-                                    <form asp-controller="Tickets" asp-action="AddTicketComment" method="post">
-                                        <input type="hidden" name="TicketId" asp-for="@Model.Id" />
+                            <!-- Start Comment Respond  -->
+                            <div class="comment-respond mb-3">
+                                <h4 class="title">Post a comment</h4>
+                                <form asp-controller="Tickets" asp-action="AddTicketComment" method="post">
+                                    <input type="hidden" name="TicketId" asp-for="@Model.Id" />
 
-                                        <div class="row">
-                                            <!--TODO: Comment Input Section-->
-                                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                                            <div class="form-group">
-                                                <textarea type="text" id="commentInput" name="Comment" autocomplete="off" class="form-control"></textarea>
-                                            </div>
-                                            <div class="col-lg-12 mt-3">
-                                                <button type="submit" class="submit-button btn btn-primary btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" data-loading-text="Loading...">
-                                                    <i class="bx bx-pencil text-4 me-2"></i> Post Comment
-                                                </button>
-                                            </div>
+                                    <div class="row">
+                                        <!--TODO: Comment Input Section-->
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="form-group">
+                                            <textarea type="text" id="commentInput" name="Comment" autocomplete="off" class="form-control"></textarea>
                                         </div>
-                                    </form>
-                                </div>
-                                <!-- End Comment Respond  -->
+                                        <div class="col-lg-12 mt-3">
+                                            <button type="submit" class="submit-button btn btn-primary btn-px-4 py-3 d-flex align-items-center font-weight-semibold line-height-1" data-loading-text="Loading...">
+                                                <i class="bx bx-pencil text-4 me-2"></i> Post Comment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- End Comment Respond  -->
                             <div class="scrollable colored-slider tm-body" data-plugin-scrollable style="height: 450px;">
                                 <ol class="scrollable-content tm-items me-5">
-                                    <p class="fs-5 mb-3">There are currently @Model.TicketComments.Count comments</p>
+                                    <li class="fs-5 mb-3"><p>There are currently @Model.TicketComments.Count comments</p></li>
                                     @foreach (TicketComment comment in await _ticketService.GetRecentTicketCommentsAsync(Model.Id))
                                     {
-                                            <li>
-                                                <div class="tm-box">
-                                                    <p class="text-muted mb-0">@comment.Created</p>
-                                                    <h5><strong>Author:</strong> @comment.User!.FullName</h5>
-                                                    <p class="fs-6 text-light">
-                                                        <strong>Comment:</strong> @comment.Comment <br>
-                                                    </p>
+                                        <li>
+                                            <div class="tm-box">
+                                                <p class="text-muted mb-0">@comment.Created</p>
+                                                <h5><strong>Author:</strong> @comment.User!.FullName</h5>
+                                                <p class="fs-6 text-light">
+                                                    <strong>Comment:</strong> @comment.Comment <br>
+                                                </p>
 
-                                                </div>
-                                            </li>
+                                            </div>
+                                        </li>
                                     }
                                 </ol>
                             </div>
@@ -290,19 +292,19 @@
                                     <div class="row">
                                         @foreach (TicketAttachment item in await _ticketService.GetRecentTicketAttachmentsAsync(Model.Id))
                                         {
-                                                        <div class="col col-sm-2">
-                                                            <a asp-action="ShowFile" asp-controller="Tickets" asp-route-Id="@item.Id">
-                                                                <div class="icon">
-                                                                    <img src="@_fileService.GetFileIcon(item.FileName!)" style="height:50px;width:50px" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="@item.FileName" />
-                                                                </div>
-                                                            </a>
-                                                            <div style="font-size:x-small">
-                                                                <div class="file-name">
-                                                                    <strong>@item.Description</strong>
-                                                                </div>
-                                                                <small>Size: @_fileService.FormatFileSize(item.FileData!.Length) </small>
-                                                            </div>
-                                                        </div>
+                                            <div class="col col-sm-2">
+                                                <a asp-action="ShowFile" asp-controller="Tickets" asp-route-Id="@item.Id">
+                                                    <div class="icon">
+                                                        <img src="@_fileService.GetFileIcon(item.FileName!)" style="height:50px;width:50px" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="@item.FileName" />
+                                                    </div>
+                                                </a>
+                                                <div style="font-size:x-small">
+                                                    <div class="file-name">
+                                                        <strong>@item.Description</strong>
+                                                    </div>
+                                                    <small>Size: @_fileService.FormatFileSize(item.FileData!.Length) </small>
+                                                </div>
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -317,4 +319,3 @@
 
 </div>
 <!-- end: page -->
-
