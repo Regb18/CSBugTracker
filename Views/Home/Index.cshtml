@@ -1,57 +1,84 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
-    Layout = "_OldLayout";
+    Layout = "";
 }
 
-<section class="section section-concept section-no-border section-dark section-angled section-angled-reverse border-top-0 pt-5 m-0" id="section-concept" style="background-size: cover; background-position: center; animation-duration: 750ms; animation-delay: 300ms; animation-fill-mode: forwards;" data-plugin-lazyload data-plugin-options="{'threshold': 500}" data-original="img/landing/header_bg.jpg">
-    <div class="section-angled-layer-bottom bg-light" style="padding: 8rem 0;"></div>
-    <div class="container pt-5 mt-lg-5">
-        <div class="row align-items-center pt-3">
-            <div class="col-lg-5 mb-5">
-                <h5 class="text-primary font-weight-bold mb-1 appear-animation" data-appear-animation="fadeInUpShorter" data-appear-animation-duration="750">PORTO ADMIN HTML5 TEMPLATE</h5>
-                <h1 class="font-weight-bold text-color-light text-13 line-height-2 mt-0 mb-3 appear-animation" data-appear-animation="fadeInUpShorter" data-appear-animation-delay="400" data-appear-animation-duration="750">The Best Admin Template<span class="appear-animation" data-appear-animation="fadeInRightShorter" data-appear-animation-delay="600" data-appear-animation-duration="800"><span class="d-inline-block text-primary highlighted-word highlighted-word-rotate highlighted-word-animation-1 alternative-font-3 font-weight-bold text-1 ms-2">ever</span></span></h1>
-                <p class="custom-font-size-1 appear-animation" data-appear-animation="fadeInUpShorter" data-appear-animation-delay="900" data-appear-animation-duration="750">Porto Admin is simply the best choice for your new project. The template is several years among the most popular in the world.<a href="#intro" data-hash data-hash-offset="120" class="text-color-light font-weight-semibold text-1 d-block">VIEW MORE <i class="fa fa-long-arrow-alt-right ms-1"></i></a></p>
-                <p class="appear-animation" data-appear-animation="fadeInUpShorter" data-appear-animation-delay="1200" data-appear-animation-duration="750">
-                    @*<a href="https://getbootstrap.com/" target="_blank"><img src="img/bs5-updated.png" class="img-fluid mt-2" alt="Bootstrap 5" width="200"></a>*@
-                    <a class="btn btn-lg btn-outline-primary" asp-area="Identity" asp-page="/Account/Login">Get Started</a>
-                </p>
+<!DOCTYPE html>
+<html lang="en">
 
-                <div id="popup-content-1" class="dialog dialog-lg zoom-anim-dialog rounded p-3 mfp-hide mfp-close-out">
-                    <div class="embed-responsive embed-responsive-4by3">
-@*                        <video width="100" height="100" autoplay muted loop controls>
-                            <source src="video/presentation.mp4?r=2" type="video/mp4">
-                        </video>*@
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Template Mo">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+
+    <title>The Exterminator: Bug Tracker</title>
+    <!--
+
+    ART FACTORY
+
+    https://templatemo.com/tm-537-art-factory
+
+    -->
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" type="text/css" href="~/landingpage/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="~/landingpage/assets/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" href="~/landingpage/assets/css/templatemo-art-factory.css">
+    <link rel="stylesheet" type="text/css" href="~/landingpage/assets/css/owl-carousel.css">
+
+</head>
+
+<body>
+
+    <!-- ***** Preloader Start ***** -->
+    <div id="preloader">
+        <div class="jumper">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <!-- ***** Preloader End ***** -->
+
+    <!-- ***** Welcome Area Start ***** -->
+    <div class="welcome-area" id="welcome">
+
+        <!-- ***** Header Text Start ***** -->
+        <div class="header-text">
+            <div class="container">
+                <div class="row">
+                    <div class="left-text col-lg-6 col-md-6 col-sm-12 col-xs-12" data-scroll-reveal="enter left move 30px over 0.6s after 0.4s">
+                        <h1>The Exterminator: <strong>Bug Tracker</strong></h1>
+                        <p>New Issue Tracking Software Guaranteed to Meet your Company Needs. Take a look inside to see what we can do for you.</p>
+                        <a asp-area="Identity" asp-page="/Account/Login" class="main-button-slider">Get Started</a>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" data-scroll-reveal="enter right move 30px over 0.6s after 0.4s">
+                        <img src="/img/logo-no-background.png" class="rounded img-fluid d-block mx-auto" alt="First Vector Graphic">
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 offset-lg-1 mb-5 appear-animation" data-appear-animation="fadeIn" data-appear-animation-delay="1200" data-appear-animation-duration="750">
-                <div class="border-width-10 border-color-light clearfix border border-radius">
-@*                    <video class="float-left" width="100" height="100" autoplay muted loop>
-                        <source src="video/presentation.mp4?r=2" type="video/mp4">
-                    </video>*@
-                </div>
-            </div>
-            <div class="col-md-8 col-lg-6 col-xl-5 custom-header-bar py-4 pe-5 appear-animation p-relative z-index-2" data-appear-animation="maskRight" data-appear-animation-delay="1200" data-appear-animation-duration="750">
-                <div class="appear-animation" data-appear-animation="fadeInRightShorter" data-appear-animation-delay="1500">
-                    <div class="star-rating-wrap d-flex align-items-center justify-content-center position-relative text-color-dark text-5 py-2 mb-2">
-                        <i class="fas fa-star"></i><i class="fas fa-star ms-1"></i><i class="fas fa-star ms-1"></i><i class="fas fa-star ms-1"></i><i class="fas fa-star ms-1"></i>
-                    </div>
-                    <h4 class="position-relative text-center text-color-light font-weight-bold text-7 line-height-2 negative-ls-1 mt-0 mb-1">Popular Admin HTML5 Template</h4>
-                    <p class="position-relative text-color-light text-center font-weight-normal opacity-7 mb-1">* Aproved by over 7k+ buyers since 2014</p>
-                </div>
-            </div>
         </div>
+        <!-- ***** Header Text End ***** -->
     </div>
-</section>
+    <!-- ***** Welcome Area End ***** -->
+    <!-- jQuery -->
+    <script src="~/landingpage/assets/js/jquery-2.1.0.min.js"></script>
 
-<section id="intro" class="section section-no-border section-angled bg-light border-top-0 pt-0 pb-0 m-0">
-    <div class="section-angled-layer-bottom section-angled-layer-increase-angle bg-light" style="padding: 24rem 0;"></div>
-    <div class="container pb-5" style="min-height: 150px;">
-        <div class="row counters justify-content-center">
-            <div class="col-md-8 col-lg-6 col-xl-5 text-center">
-                <h2 class="font-weight-bold text-color-dark text-9 mt-0mb-0 appear-animation" data-appear-animation="fadeInUpShorter" data-appear-animation-duration="750" data-plugin-options="{'accY': -200}">The Perfect Template for a Professional Admin Project</h2>
-                <p class="sub-title text-primary text-4 font-weight-semibold positive-ls-2 mt-2 mb-4 appear-animation" data-appear-animation="fadeInUpShorter" data-appear-animation-delay="400" data-appear-animation-duration="750">YOUR ADMIN TO A <span class="highlighted-word highlighted-word-animation-1 highlighted-word-animation-1-2 highlighted-word-animation-1 pos-2 alternative-font-4 font-weight-semibold line-height-2 pb-3">NEW LEVEL</span></p>
-            </div>
-        </div>
-    </div>
-</section>
+    <!-- Bootstrap -->
+    <script src="~/landingpage/assets/js/popper.js"></script>
+    <script src="~/landingpage/assets/js/bootstrap.min.js"></script>
+
+    <!-- Plugins -->
+    <script src="~/landingpage/assets/js/owl-carousel.js"></script>
+    <script src="~/landingpage/assets/js/scrollreveal.min.js"></script>
+    <script src="~/landingpage/assets/js/waypoints.min.js"></script>
+    <script src="~/landingpage/assets/js/jquery.counterup.min.js"></script>
+    <script src="~/landingpage/assets/js/imgfix.min.js"></script>
+
+    <!-- Global Init -->
+    <script src="~/landingpage/assets/js/custom.js"></script>
+
+</body>
+</html>

@@ -157,7 +157,7 @@ namespace CSBugTracker.Services
             }
         }
 
-        public async Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(string? userId)
+        public async Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(int? companyId, string? userId)
         {
             try
             {
@@ -168,7 +168,7 @@ namespace CSBugTracker.Services
                                                              .Include(t => t.TicketPriority)
                                                              .Include(t => t.TicketStatus)
                                                              .Include(t => t.TicketType)
-                                                             .Where(t => (t.SubmitterUserId == userId || t.DeveloperUserId == userId) && t.Archived == false && t.ArchivedByProject == false)
+                                                             .Where(t => (t.SubmitterUserId == userId || t.DeveloperUserId == userId) && t.Project!.CompanyId == companyId && t.Archived == false && t.ArchivedByProject == false)
                                                              .ToListAsync();
 
                 return tickets;
@@ -587,6 +587,31 @@ namespace CSBugTracker.Services
 
 
         #endregion
+
+        public async Task<bool> DoesUserHaveTickets(string? userId)
+        {
+            try
+            {
+                IEnumerable<Ticket> tickets = await _context.Tickets
+                                                             .Include(t => t.DeveloperUser)
+                                                             .Include(t => t.Project)
+                                                             .Include(t => t.SubmitterUser)
+                                                             .Where(t => (t.SubmitterUserId == userId || t.DeveloperUserId == userId) && t.Archived == false && t.ArchivedByProject == false)
+                                                             .ToListAsync();
+                
+                if(tickets.Count() > 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
     }
 }

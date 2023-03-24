@@ -136,33 +136,24 @@
                                         <li>
                                             <div class="tm-box">
                                                 <p class="text-muted mb-0">@history.Created</p>
-
-                                                <p><strong>Property:</strong> @history.PropertyName</p>
-                                                <p><strong>Old Value:</strong> @history.OldValue</p>
-                                                <p><strong>New Value:</strong> @history.NewValue</p>
-                                                <p class="mb-3">@history.Description</p>
+                                                @if (history.Description == "New Ticket Created")
+                                                {
+                                                    <p class="mb-3">
+                                                        @history.Description<br>
+                                                        <strong>Ticket:</strong> @history.Ticket?.Title
+                                                    </p>
+                                                }
+                                                else
+                                                {
+                                                    <p>
+                                                        <strong>Ticket:</strong> @history.Ticket?.Title<br>
+                                                        <strong>Property:</strong> @history.PropertyName<br>
+                                                        <strong>Description:</strong> @history.Description
+                                                    </p>
+                                                }
 
                                             </div>
                                         </li>
-                                        @*                                        <li>
-                                    <div class="tm-box">
-                                    <p class="text-muted mb-0">7 months ago.</p>
-                                    <p>
-                                    Checkout! How cool is that!
-                                    </p>
-                                    <div class="thumbnail-gallery">
-                                    <a class="img-thumbnail lightbox"
-                                    href="img/projects/project-4.jpg"
-                                    data-plugin-options='{ "type":"image" }'>
-                                    <img class="img-fluid" width="215"
-                                    src="img/projects/project-4.jpg">
-                                    <span class="zoom">
-                                    <i class="bx bx-search"></i>
-                                    </span>
-                                    </a>
-                                    </div>
-                                    </div>
-                                    </li>*@
                                     }
                                 </ol>
                             </div>

@@ -21,7 +21,7 @@ namespace CSBugTracker.Services.Interfaces
         public Task<IEnumerable<Ticket>> GetTicketsAsync();
         public Task<IEnumerable<Ticket>> GetTicketsAsync(string? userId, int? companyId);
         public Task<IEnumerable<Ticket>> GetTicketsbyProjectsAsync(int? companyId, int? projectId);
-        public Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(string? userId);
+        public Task<IEnumerable<Ticket>> GetTicketsbyUserAsync(int? companyId, string? userId);
         public Task<IEnumerable<Ticket>> GetUnassignedTicketsAsync(int? companyId, string? userId);
         public Task<IEnumerable<Ticket>> GetPMUnassignedTicketsAsync(int? companyId, string? userId);
         public Task<IEnumerable<Ticket>> GetArchivedTicketsAsync(string? userId, int? companyId);
@@ -64,6 +64,9 @@ namespace CSBugTracker.Services.Interfaces
         public Task<BTUser> GetTicketDeveloperAsync(int? ticketId);
         public Task<bool> AddTicketDeveloperAsync(string? userId, int? ticketId, int? companyId);
         //public Task RemoveTicketDeveloperAsync(int? ticketId);
+
+
+        public Task<bool> DoesUserHaveTickets(string? userId);
 
     }
 }

@@ -143,5 +143,58 @@ namespace CSBugTracker.Services
             }
         }
 
+
+        // GetUserProjectsCount
+        public async Task<int> GetUserProjectsCount(string? userId)
+        {
+            BTUser? user = await _context.Users.FirstOrDefaultAsync(u=>u.Id == userId);
+
+            IEnumerable<Project> projects = await _context.Projects.Where(p => p.Members.Contains(user!)).ToListAsync();
+
+            int count = projects.Count();
+
+            return count;
+        }
+
+
+        // GetUserTicketsCount
+        public async Task<int> GetUserTicketsCount(string? userId)
+        {
+            IEnumerable<Ticket> tickets = await _context.Tickets
+                                                        .Where(p => p.SubmitterUserId == userId || p.DeveloperUserId == userId)
+                                                        .ToListAsync();
+
+            int count = tickets.Count();
+
+            return count;
+        }
+
+        // GetUserNotificationsCount
+        public async Task<int> GetUserNotificationsCount(string? userId)
+        {
+            IEnumerable<Notification> notifications = await _context.Notifications
+                                                        .Where(p => p.RecipientId == userId)
+                                                        .ToListAsync();
+
+            int count = notifications.Count();
+
+            return count;
+        }
+
+        //GetUserNotifications - Include User
+        public async Task<IEnumerable<Notification>> GetUserNotifications(string? userId)
+        {
+            IEnumerable<Notification> notifications = await _context.Notifications
+                                                                    .Include(n=>n.Sender)
+                                                                    .Include(n => n.Ticket)
+                                                                    .Where(p => p.RecipientId == userId)
+                                                                    .ToListAsync();
+
+            return notifications;
+        }
+
+
+
+
     }
 }
