@@ -270,13 +270,13 @@
                         <div class="widget-summary">
                             <div class="widget-summary-col widget-summary-col-icon">
                                 <div class="summary-icon bg-primary">
-                                    <i class="fas fa-life-ring"></i>
+                                    <i class="fas fa-clock"></i>
                                 </div>
                             </div>
                             <div class="widget-summary-col">
                                 <div class="summary">
                                     <h4 class="title">Days Left on Project</h4>
-                                    <div class="info">
+                                    <div class="info fs-5">
                                         @{
                                             var daysLeft = today >= end ? "Project is Complete" : today < start ? "Project Hasn't Started" : $"{(end - today).Days}";
                                         }
