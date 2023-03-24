@@ -1,10 +1,22 @@
 ﻿@model CSBugTracker.Models.Ticket
 
+@using CSBugTracker.Data;
 @using CSBugTracker.Models.Enums
 @using CSBugTracker.Services.Interfaces
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.EntityFrameworkCore;
 @inject IBTFileService _fileService
 @inject IBTTicketService _ticketService
 @inject IBTTicketHistoryService _historyService
+@inject UserManager<BTUser> _userManager
+@inject ApplicationDbContext _context
+
+@{
+    ViewData["Title"] = "Index";
+    string? userId = _userManager.GetUserId(User);
+    BTUser? btUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+}
+
 
 @{
     ViewData["Title"] = "Details";
@@ -33,10 +45,21 @@
         </div>
     </div>
     <div class="col align-items-end justify-content-end d-flex">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="me-3 btn btn-lg btn-outline-light fs-6">Edit <i class="bx fs-6 bx-pencil"></i></a>
-        <a asp-action="AssignDev" asp-route-id="@Model.Id" class="me-3 btn btn-lg btn-outline-info fs-6">Assign Dev <i class="bx fs-6 bx-code-alt"></i></a>
-        <a asp-action="Index" class="me-3 btn btn-lg btn-outline-primary fs-6">Back To List <i class="bx fs-6 bx-tags"></i></a>
-        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-lg btn-outline-danger fs-6">Archive <i class="bx fs-6 bx-trash"></i></a>
+        @if (User.IsInRole(nameof(BTRoles.Admin)) || (Model.SubmitterUserId == userId) || (Model.DeveloperUserId == userId) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && Model.Project!.Members.Contains(btUser!)))
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="me-3 btn btn-lg btn-outline-light fs-6">Edit <i class="bx fs-6 bx-pencil"></i></a>
+            
+            @if (User.IsInRole(nameof(BTRoles.Admin)) || (User.IsInRole(nameof(BTRoles.ProjectManager)) && Model.Project!.Members.Contains(btUser!)))
+            {
+                <a asp-action="AssignDev" asp-route-id="@Model.Id" class="me-3 btn btn-lg btn-outline-info fs-6">Assign Dev <i class="bx fs-6 bx-code-alt"></i></a>
+            }
+            
+            <a asp-action="Index" class="me-3 btn btn-lg btn-outline-primary fs-6">Back To List <i class="bx fs-6 bx-tags"></i></a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-lg btn-outline-danger fs-6">Archive <i class="bx fs-6 bx-trash"></i></a>
+
+
+
+        }
     </div>
 </div>
 <div class="row">

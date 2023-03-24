@@ -44,10 +44,16 @@
                         <th>Status</th>
                         <th>Developer</th>
                         <th class="hidden">Submitter</th>
+
                         @if (User.IsInRole(nameof(BTRoles.Admin)) || User.IsInRole(nameof(BTRoles.ProjectManager)))
                         {
                             <th>Actions</th>
                         }
+                        else
+                        {
+                            <th></th>
+                        }
+
                     </tr>
                 </thead>
                 <tbody>

@@ -18,7 +18,7 @@ using CSBugTracker.Models.Enums;
 
 namespace CSBugTracker.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin, ProjectManager")]
     public class ProjectsController : Controller
     {
         private readonly IBTFileService _fileService;
@@ -98,7 +98,6 @@ namespace CSBugTracker.Controllers
 
         // GET: Add Members to Project
         [HttpGet]
-        [Authorize(Roles = "Admin, ProjectManager")]
         public async Task<IActionResult> AssignProjectMembers(int? id)
         {
             if (id == null)
@@ -133,7 +132,6 @@ namespace CSBugTracker.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = "Admin, ProjectManager")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignProjectMembers(ProjectMembersViewModel viewModel)
         {
